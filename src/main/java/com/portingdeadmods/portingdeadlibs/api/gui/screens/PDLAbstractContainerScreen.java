@@ -1,4 +1,4 @@
-package com.portingdeadmods.portingdeadlibs.api.client.screens;
+package com.portingdeadmods.portingdeadlibs.api.gui.screens;
 
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import com.portingdeadmods.portingdeadlibs.api.gui.menus.PDLAbstractContainerMenu;
