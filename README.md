@@ -6,3 +6,4 @@ Includes:
 - Multiblock api
 - Blockentity wrapper
 - Menu Wrapper, Screen Wrapper
+- Fluids
