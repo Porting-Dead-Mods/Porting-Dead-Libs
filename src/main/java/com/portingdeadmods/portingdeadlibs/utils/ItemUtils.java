@@ -1,31 +1,51 @@
 package com.portingdeadmods.portingdeadlibs.utils;
 
-import com.portingdeadmods.nautec.capabilities.NTCapabilities;
-import com.portingdeadmods.nautec.capabilities.power.IPowerStorage;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
 
 import static net.neoforged.neoforge.items.ItemHandlerHelper.insertItemStacked;
 
 public final class ItemUtils {
-    public static final int ITEM_POWER_INPUT = 128;
+    private static final int ENERGY_BAR_COLOR = FastColor.ARGB32.color(203, 10, 10);
 
-    public static final int POWER_BAR_COLOR = FastColor.ARGB32.color(94, 133, 164);
-
-    public static int powerForDurabilityBar(ItemStack itemStack) {
-        IPowerStorage powerStorage = itemStack.getCapability(NTCapabilities.PowerStorage.ITEM);
-        if (powerStorage != null) {
-            int powerStored = powerStorage.getPowerStored();
-            int powerCapacity = powerStorage.getPowerCapacity();
+    public static int getEnergyForDurabilityBar(ItemStack itemStack) {
+        IEnergyStorage energyStorage = itemStack.getCapability(Capabilities.EnergyStorage.ITEM);
+        if (energyStorage != null) {
+            int powerStored = energyStorage.getEnergyStored();
+            int powerCapacity = energyStorage.getMaxEnergyStored();
             float chargeRatio = (float) powerStored / powerCapacity;
             return Math.round(13.0F - ((1 - chargeRatio) * 13.0F));
         }
         return 0;
+    }
+
+    public static int getFluidForDurabilityBar(ItemStack itemStack) {
+        IFluidHandler fluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
+        if (fluidHandler != null) {
+            int powerStored = fluidHandler.getFluidInTank(0).getAmount();
+            int powerCapacity = fluidHandler.getTankCapacity(0);
+            float chargeRatio = (float) powerStored / powerCapacity;
+            return Math.round(13.0F - ((1 - chargeRatio) * 13.0F));
+        }
+        return 0;
+    }
+
+    public static int getEnergyBarColor() {
+        return ENERGY_BAR_COLOR;
+    }
+
+    public static int getFluidBarColor(ItemStack itemStack) {
+        IFluidHandler fluidHandler = itemStack.getCapability(Capabilities.FluidHandler.ITEM);
+        return IClientFluidTypeExtensions.of(fluidHandler.getFluidInTank(0).getFluid()).getTintColor();
     }
 
     public static void giveItemToPlayerNoSound(Player player, ItemStack stack) {

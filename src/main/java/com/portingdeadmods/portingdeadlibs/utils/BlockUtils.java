@@ -40,8 +40,4 @@ public final class BlockUtils {
         Direction nextDirection = directions.get(nextDirectionIndex);
         return state.setValue(prop, nextDirection);
     }
-
-    public static <T, C> @Nullable T blockEntityCapability(BlockCapability<T, C> cap, BlockEntity blockEntity) {
-        return blockEntity.getLevel().getCapability(cap, blockEntity.getBlockPos(), blockEntity.getBlockState(), blockEntity, null);
-    }
 }

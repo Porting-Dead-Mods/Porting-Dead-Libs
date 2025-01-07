@@ -1,2 +1,6 @@
 {
+  "multiblock.info.actual_block": "Actual Block: %s",
+  "multiblock.info.block_pos": "Coordinates: %d, %d, %d",
+  "multiblock.info.expected_block": "Expected Block: %s",
+  "multiblock.info.failed_to_construct": "Failed to construct"
 }
