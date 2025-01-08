@@ -32,7 +32,7 @@ public final class ArmorModelsHandler {
     private static final Map<ModelLayerLocation, Layer> LAYERS = new HashMap<>();
     private static final Map<Pair<ModelLayerLocation, EquipmentSlot>, PDLArmorModel> CACHED_ARMORS = new HashMap<>();
 
-    public static ModelLayerLocation divingSuit;
+    public static ModelLayerLocation <model>;
 
     private static boolean modelsInitted = false;
 
