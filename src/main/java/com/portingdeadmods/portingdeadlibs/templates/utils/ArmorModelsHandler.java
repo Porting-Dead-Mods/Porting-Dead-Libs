@@ -10,6 +10,21 @@
 - PLACEHOLDERS:
  - <MODCLASS>
 
+After registering a model you will have to register a client extension for it (RegisterClientExtensionsEvent) eg:
+event.registerItem(new IClientItemExtensions() {
+    @Override
+    public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack
+            itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
+        return ArmorModelsHandler.armorModel(ArmorModelsHandler.<Your Registered Model>, equipmentSlot);
+    }
+}, <Your Armor Item>);
+
+Remember to register the layer definitions in the EntityRenderersEvent.RegisterLayerDefinitions event.
+public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+    ArmorModelsHandler.registerLayers(event);
+}
+
+
 package
 
 import com.portingdeadmods.portingdeadlibs.api.client.models.PDLArmorModel;
