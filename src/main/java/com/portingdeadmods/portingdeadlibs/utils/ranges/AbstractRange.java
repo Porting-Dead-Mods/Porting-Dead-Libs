@@ -43,7 +43,7 @@ public abstract class AbstractRange<T extends Number> {
         ).apply(instance, constructor));
     }
 
-    public static <T extends Number, SELF extends AbstractRange<T>>StreamCodec<RegistryFriendlyByteBuf, SELF> rangeStreamCodec(StreamCodec<ByteBuf, T> streamCodec, BiFunction<T, T, SELF> constructor) {
+    public static <T extends Number, SELF extends AbstractRange<T>> StreamCodec<RegistryFriendlyByteBuf, SELF> rangeStreamCodec(StreamCodec<ByteBuf, T> streamCodec, BiFunction<T, T, SELF> constructor) {
         return StreamCodec.composite(
                 streamCodec,
                 SELF::getMin,
