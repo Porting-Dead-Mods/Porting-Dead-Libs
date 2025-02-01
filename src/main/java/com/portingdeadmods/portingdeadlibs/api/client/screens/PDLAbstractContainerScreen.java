@@ -9,8 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class PDLAbstractContainerScreen<T extends ContainerBlockEntity> extends AbstractContainerScreen<PDLAbstractContainerMenu<T>> {
-    public PDLAbstractContainerScreen(PDLAbstractContainerMenu<T> menu, Inventory playerInventory, Component title) {
+public abstract class PDLAbstractContainerScreen<T extends PDLAbstractContainerMenu<?>> extends AbstractContainerScreen<T> {
+    public PDLAbstractContainerScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
