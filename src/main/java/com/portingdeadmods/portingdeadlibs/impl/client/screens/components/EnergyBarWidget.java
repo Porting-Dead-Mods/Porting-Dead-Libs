@@ -4,6 +4,7 @@ import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.EnergyStorageWrapper;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.NeoEnergyStorageWrapper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
@@ -37,8 +38,6 @@ public class EnergyBarWidget extends AbstractWidget {
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         super.render(guiGraphics, mouseX, mouseY, delta);
 
-        setTooltip(Tooltip.create(Component.literal(wrapper.getEnergyStored() + "/" + wrapper.getEnergyCapacity() + energyUnit)));
-
         ResourceLocation loc = hasBorder ? ENERGY_BAR_EMPTY_BORDER : ENERGY_BAR_EMPTY;
         guiGraphics.blitSprite(loc, width, height, 0, 0, getX(), getY(), width, height);
 
@@ -48,6 +47,11 @@ public class EnergyBarWidget extends AbstractWidget {
         int progress = (int) (height * ((float) energyStored / maxStored));
         ResourceLocation locFull = hasBorder ? ENERGY_BAR_BORDER : ENERGY_BAR;
         guiGraphics.blitSprite(locFull, width, height, 0, height - progress, getX(), getY() + height - progress, width, progress);
+
+        if (isHovered()) {
+            guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.literal(wrapper.getEnergyStored() + "/" + wrapper.getEnergyCapacity() + energyUnit), mouseX, mouseY);
+        }
+
     }
 
     @Override
