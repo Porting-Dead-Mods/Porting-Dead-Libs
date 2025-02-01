@@ -25,7 +25,7 @@ public abstract class RotatableEntityBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext p_49820_) {
-        return defaultBlockState().setValue(FACING, p_49820_.getPlayer().getDirection());
+        return defaultBlockState().setValue(FACING, p_49820_.getHorizontalDirection().getOpposite());
     }
 
     @Override

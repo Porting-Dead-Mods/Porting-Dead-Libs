@@ -1,4 +1,4 @@
-package com.portingdeadmods.portingdeadlibs.impl.client.screens.components;
+package com.portingdeadmods.portingdeadlibs.impl.client.screens.widgets;
 
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
@@ -7,7 +7,6 @@ import com.portingdeadmods.portingdeadlibs.api.capabilities.NeoEnergyStorageWrap
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -36,8 +35,6 @@ public class EnergyBarWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        super.render(guiGraphics, mouseX, mouseY, delta);
-
         ResourceLocation loc = hasBorder ? ENERGY_BAR_EMPTY_BORDER : ENERGY_BAR_EMPTY;
         guiGraphics.blitSprite(loc, width, height, 0, 0, getX(), getY(), width, height);
 
