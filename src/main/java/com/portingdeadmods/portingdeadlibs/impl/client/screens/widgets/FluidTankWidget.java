@@ -41,7 +41,7 @@ public class FluidTankWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int i, int i1, float v) {
-        GuiUtils.drawImg(guiGraphics, variant.location, getX(), getY(), width, height);
+        guiGraphics.blitSprite(variant.location, getX(), getY(), width, height);
         renderer.render(guiGraphics.pose(), getX() + 1, getY() + 1, fluidHandler.getFluidInTank(0));
 
         if (isHovered()) {
