@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -26,6 +27,14 @@ public final class CodecUtils {
 
     public static <R> StreamCodec<ByteBuf, R> registryStreamCodec(Registry<R> registry) {
         return ResourceLocation.STREAM_CODEC.map(registry::get, registry::getKey);
+    }
+
+    public static <T extends Enum<T>> Codec<T> enumCodec(Class<T> enumClazz) {
+        return Codec.INT.xmap(i -> enumClazz.getEnumConstants()[i], Enum::ordinal);
+    }
+
+    public static <T extends Enum<T>> StreamCodec<ByteBuf, T> enumStreamCodec(Class<T> enumClazz) {
+        return ByteBufCodecs.INT.map(i -> enumClazz.getEnumConstants()[i], Enum::ordinal);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.api.blockentities;
 
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.DynamicFluidTank;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedEnergyStorage;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedFluidHandler;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedItemHandler;
@@ -43,7 +44,7 @@ import java.util.function.UnaryOperator;
 
 public abstract class ContainerBlockEntity extends BlockEntity {
     private @Nullable ItemStackHandler itemHandler;
-    private @Nullable FluidTank fluidTank;
+    private @Nullable DynamicFluidTank fluidTank;
     private @Nullable EnergyStorage energyStorage;
 
     public ContainerBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
@@ -65,12 +66,11 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         return energyStorage;
     }
 
-
     protected ItemStackHandler getItemStackHandler() {
         return itemHandler;
     }
 
-    protected FluidTank getFluidTank() {
+    protected DynamicFluidTank getFluidTank() {
         return fluidTank;
     }
 
@@ -82,7 +82,7 @@ public abstract class ContainerBlockEntity extends BlockEntity {
     protected final void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(nbt, provider);
         if (this.getFluidTank() != null)
-            this.getFluidTank().readFromNBT(provider, nbt.getCompound("fluid_tank"));
+            this.getFluidTank().deserializeNBT(provider, nbt.getCompound("fluid_tank"));
         if (this.getItemStackHandler() != null)
             this.getItemStackHandler().deserializeNBT(provider, nbt.getCompound("itemhandler"));
         if (this.getEnergyStorageImpl() != null)
@@ -93,11 +93,8 @@ public abstract class ContainerBlockEntity extends BlockEntity {
     @Override
     protected final void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
         super.saveAdditional(nbt, provider);
-        if (getFluidTank() != null) {
-            CompoundTag tag = new CompoundTag();
-            getFluidTank().writeToNBT(provider, tag);
-            nbt.put("fluid_tank", tag);
-        }
+        if (getFluidTank() != null)
+            nbt.put("fluid_tank", getFluidTank().serializeNBT(provider));
         if (getItemStackHandler() != null)
             nbt.put("itemhandler", getItemStackHandler().serializeNBT(provider));
         if (getEnergyStorageImpl() != null)
@@ -275,7 +272,7 @@ public abstract class ContainerBlockEntity extends BlockEntity {
     }
 
     protected final void addFluidTank(int capacityInMb, Predicate<FluidStack> validation, boolean secondary) {
-        FluidTank tank = new FluidTank(capacityInMb) {
+        DynamicFluidTank tank = new DynamicFluidTank(capacityInMb) {
             @Override
             protected void onContentsChanged() {
                 update();

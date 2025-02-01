@@ -5,6 +5,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.DeferredItem;
 import org.joml.Vector4i;
@@ -65,6 +66,14 @@ public abstract class PDLFluid {
 
     public Supplier<FluidType> registerFluidType(FluidType.Properties properties, Vector4i color, FluidTemplate template) {
         return () -> new BaseFluidType(template.getStillTexture(), template.getFlowingTexture(), template.getOverlayTexture(), color, properties);
+    }
+
+    public FluidStack toStack() {
+        return toStack(1000);
+    }
+
+    public FluidStack toStack(int amount) {
+        return new FluidStack(this.stillFluid.get(), amount);
     }
 }
 
