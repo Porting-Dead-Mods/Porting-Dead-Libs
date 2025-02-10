@@ -28,12 +28,12 @@ public record SidedItemHandler(IItemHandler innerHandler,
 
     @Override
     public @NotNull ItemStack insertItem(int slot, @NotNull ItemStack itemStack, boolean simulate) {
-        return action == IOAction.INSERT || action == IOAction.BOTH && slots.contains(slot) ? innerHandler.insertItem(slot, itemStack, simulate) : itemStack;
+        return (action == IOAction.INSERT || action == IOAction.BOTH) && slots.contains(slot) ? innerHandler.insertItem(slot, itemStack, simulate) : itemStack;
     }
 
     @Override
     public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
-        return action == IOAction.EXTRACT || action == IOAction.BOTH && slots.contains(slot) ? innerHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
+        return (action == IOAction.EXTRACT || action == IOAction.BOTH) && slots.contains(slot) ? innerHandler.extractItem(slot, amount, simulate) : ItemStack.EMPTY;
     }
 
     @Override
