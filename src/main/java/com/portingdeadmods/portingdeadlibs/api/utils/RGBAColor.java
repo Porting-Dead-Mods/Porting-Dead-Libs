@@ -9,7 +9,7 @@ public record RGBAColor(int r, int g, int b, int a) {
         this(r, g, b, 255);
     }
 
-    private static final Codec<RGBAColor> RAW_CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final Codec<RGBAColor> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.INT.fieldOf("r").forGetter(RGBAColor::r),
             Codec.INT.fieldOf("g").forGetter(RGBAColor::g),
             Codec.INT.fieldOf("b").forGetter(RGBAColor::b),
