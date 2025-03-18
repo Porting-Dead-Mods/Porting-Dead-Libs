@@ -390,8 +390,6 @@ public final class MultiblockHelper {
         BlockPos firstBlockPos = getFirstBlockPos(direction, controllerPos, relativeControllerPos);
         MultiblockLayer[] layout = data.layers();
 
-        int test = 0;
-
         int yIndex = 0;
         int xIndex = 0;
         for (MultiblockLayer layer : layout) {
@@ -403,10 +401,6 @@ public final class MultiblockHelper {
             for (int blockIndex : layer.layer()) {
                 BlockPos curBlockPos = getCurPos(firstBlockPos, new Vec3i(x, yIndex, z), direction);
                 BlockState unformedBlock = multiblock.unformBlock(level, curBlockPos, controllerPos, xIndex, yIndex, data, player);
-
-                if (test < 2) {
-                    test++;
-                }
 
                 BlockState blockState = level.getBlockState(curBlockPos);
                 if (!level.getBlockState(curBlockPos).isEmpty()) {

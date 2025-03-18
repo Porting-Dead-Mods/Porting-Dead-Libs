@@ -141,7 +141,7 @@ public interface Multiblock {
     @Nullable BlockState formBlock(Level level, BlockPos blockPos, BlockPos controllerPos, int layerIndex, int layoutIndex, MultiblockData multiblockData, @Nullable Player player);
 
     default BlockState unformBlock(Level level, BlockPos blockPos, BlockPos controllerPos, int layerIndex, int layoutIndex, MultiblockData multiblockData, @Nullable Player player) {
-        int blockId = getLayout()[layoutIndex].layer()[layerIndex];
+        int blockId = multiblockData.layers()[layoutIndex].layer()[layerIndex];
         Block block = getDefinition().getDefaultBlock(blockId);
         return block != null ? block.defaultBlockState() : null;
     }
