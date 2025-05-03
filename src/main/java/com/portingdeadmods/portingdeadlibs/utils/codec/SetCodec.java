@@ -7,11 +7,14 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize) implements Codec<Set<E>> {
+public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize, Supplier<? extends Set<E>> setSupplier) implements Codec<Set<E>> {
     private <R> DataResult<R> createTooShortError(final int size) {
         return DataResult.error(() -> "Set is too short: " + size + ", expected range [" + minSize + "-" + maxSize + "]");
     }
@@ -38,7 +41,7 @@ public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize) imple
     @Override
     public <T> DataResult<Pair<Set<E>, T>> decode(DynamicOps<T> ops, T input) {
         return ops.getList(input).setLifecycle(Lifecycle.stable()).flatMap(stream -> {
-            final DecoderState<T> decoder = new DecoderState<>(ops);
+            final DecoderState<T> decoder = new DecoderState<>(ops, setSupplier);
             stream.accept(decoder::accept);
             return decoder.build();
         });
@@ -46,20 +49,21 @@ public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize) imple
 
     @Override
     public String toString() {
-        return "ListCodec[" + elementCodec + "]";
+        return "SetCodec[" + elementCodec + "]";
     }
 
     private class DecoderState<T> {
         private static final DataResult<Unit> INITIAL_RESULT = DataResult.success(Unit.INSTANCE, Lifecycle.stable());
 
         private final DynamicOps<T> ops;
-        private final Set<E> elements = new HashSet<>();
+        private final Set<E> elements;
         private final Stream.Builder<T> failed = Stream.builder();
         private DataResult<Unit> result = INITIAL_RESULT;
         private int totalCount;
 
-        private DecoderState(final DynamicOps<T> ops) {
+        private DecoderState(final DynamicOps<T> ops, Supplier<? extends Set<E>> setSupplier) {
             this.ops = ops;
+            this.elements = setSupplier.get();
         }
 
         public void accept(final T value) {
@@ -79,7 +83,7 @@ public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize) imple
                 return createTooShortError(elements.size());
             }
             final T errors = ops.createList(failed.build());
-            final Pair<Set<E>, T> pair = Pair.of(Set.copyOf(elements), errors);
+            final Pair<Set<E>, T> pair = Pair.of(elements, errors);
             if (totalCount > maxSize) {
                 result = createTooLongError(totalCount);
             }

@@ -6,6 +6,17 @@ import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.Direction;
 
 public final class SidedCapUtils {
+    public static ImmutableMap<Direction, Pair<IOAction, int[]>> allBoth(int ...slots) {
+        return ImmutableMap.of(
+                Direction.NORTH, Pair.of(IOAction.BOTH, slots),
+                Direction.EAST, Pair.of(IOAction.BOTH, slots),
+                Direction.SOUTH, Pair.of(IOAction.BOTH, slots),
+                Direction.WEST, Pair.of(IOAction.BOTH, slots),
+                Direction.UP, Pair.of(IOAction.BOTH, slots),
+                Direction.DOWN, Pair.of(IOAction.BOTH, slots)
+        );
+    }
+
     public static ImmutableMap<Direction, Pair<IOAction, int[]>> allInsert(int ...slots) {
         return ImmutableMap.of(
                 Direction.NORTH, Pair.of(IOAction.INSERT, slots),

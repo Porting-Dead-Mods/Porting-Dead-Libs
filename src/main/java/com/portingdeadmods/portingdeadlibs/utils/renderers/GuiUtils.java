@@ -27,4 +27,10 @@ public final class GuiUtils {
         BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
         poseStack.popPose();
     }
+
+    public static void renderRect(GuiGraphics guiGraphics, int x, int y, int width, int height, int lineWidth, int lineColor, int fillColor) {
+        guiGraphics.fill(x, y, x + width, y + height, lineColor);
+        guiGraphics.fill(x + lineWidth, y + lineWidth, x + width - lineWidth, y + height - lineWidth, fillColor);
+    }
+
 }

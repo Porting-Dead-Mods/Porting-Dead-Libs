@@ -2,6 +2,7 @@ package com.portingdeadmods.portingdeadlibs.utils;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -21,7 +22,7 @@ public final class BlockUtils {
     }
 
     public static BlockPos[] getBlocksAroundSelf3x3(BlockPos selfPos) {
-        return new BlockPos[] {
+        return new BlockPos[]{
                 selfPos.offset(1, 0, 0),
                 selfPos.offset(0, 0, 1),
                 selfPos.offset(-1, 0, 0),
@@ -40,4 +41,13 @@ public final class BlockUtils {
         Direction nextDirection = directions.get(nextDirectionIndex);
         return state.setValue(prop, nextDirection);
     }
+
+    public static <T extends BlockEntity> @Nullable T getBE(Class<T> clazz, BlockGetter level, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (clazz.isInstance(be)) {
+            return (T) be;
+        }
+        return null;
+    }
+
 }

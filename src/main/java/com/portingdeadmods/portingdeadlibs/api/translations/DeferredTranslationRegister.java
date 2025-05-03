@@ -4,7 +4,6 @@ import com.portingdeadmods.portingdeadlibs.PDLRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
@@ -17,6 +16,10 @@ public class DeferredTranslationRegister extends DeferredRegister<TranslatableCo
 
     public static DeferredTranslationRegister createTranslations(String namespace) {
         return new DeferredTranslationRegister(namespace);
+    }
+
+    public DeferredTranslation<TranslatableConstant> registerSimple(String name, String category) {
+        return this.register(name, () -> new TranslatableConstant(name, category));
     }
 
     @Override

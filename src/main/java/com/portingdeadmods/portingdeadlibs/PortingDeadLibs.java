@@ -25,5 +25,7 @@ public final class PortingDeadLibs {
 
     private void registerRegistries(NewRegistryEvent event) {
         event.register(PDLRegistries.MULTIBLOCK);
+        event.register(PDLRegistries.TRANSLATION);
     }
+
 }

@@ -11,11 +11,11 @@ public class DeferredTranslation<T extends TranslatableConstant> extends Deferre
     }
 
     public String key() {
-        return get().category() + "." + this.getId().getNamespace() + "." + get().getRawKey();
+        return get().key(this.getId().getNamespace());
     }
 
     public MutableComponent component(Object... args) {
-        return Component.translatable(key(), args);
+        return get().component(this.getId().getNamespace(), args);
     }
 
     public String category() {
