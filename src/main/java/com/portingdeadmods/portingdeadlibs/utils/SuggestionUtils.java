@@ -8,7 +8,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 
 import java.util.concurrent.CompletableFuture;
 
-public class SuggestionUtils {
+public final class SuggestionUtils {
     public static CompletableFuture<Suggestions> playerNames(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
         return SharedSuggestionProvider.suggest(context.getSource().getLevel().players().stream().map(player -> player.getName().getString()).toList(), builder);
     }
