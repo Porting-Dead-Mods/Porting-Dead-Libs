@@ -129,46 +129,29 @@ jobs:
           git tag -a ${{ steps.check_version.outputs.TAG }} -m "Release ${{ steps.check_version.outputs.TAG }}"
           git push origin ${{ steps.check_version.outputs.TAG }}
 
-      - name: Create Release
+      - name: Create Release and Upload JARs
         if: steps.check_version.outputs.SHOULD_RELEASE == 'true'
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.check_version.outputs.TAG }}
-          release_name: ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
+          name: ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
           body: |
             ## ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
-            
+
             ### Changes
             ${{ steps.commit_log.outputs.log }}
-            
+
             ### Build Information
             - **Minecraft Version:** ${{ steps.mod_info.outputs.MC_VERSION }}
             - **NeoForge Version:** ${{ steps.mod_info.outputs.NEO_VERSION }}
             - **Mod Version:** ${{ steps.mod_info.outputs.MOD_VERSION }}
-            
+
             ### Download
             Available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/${{ steps.mod_info.outputs.MOD_ID }}) and below.
           draft: false
           prerelease: ${{ contains(steps.check_version.outputs.VERSION, '-') }}
-
-      - name: Upload all JARs to Release
-        if: steps.check_version.outputs.SHOULD_RELEASE == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
-        run: |
-          for file in build/libs/*.jar; do
-            echo "Uploading $file"
-            curl -sSL \
-              -X POST \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Content-Type: application/java-archive" \
-              --data-binary @"$file" \
-              "$UPLOAD_URL?name=$(basename $file)"
-          done
+          files: build/libs/*.jar
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload to CurseForge
         if: steps.check_version.outputs.SHOULD_RELEASE == 'true' && env.CURSEFORGE_TOKEN != ''
