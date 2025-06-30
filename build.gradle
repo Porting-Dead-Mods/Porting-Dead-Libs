@@ -15,7 +15,7 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+version = "${mod_version}-${minecraft_version}"
 group = mod_group_id
 
 repositories {
@@ -206,19 +206,19 @@ if (System.getenv('CURSEFORGE_TOKEN')) {
         disableVersionDetection()
 
         // Upload main jar
-        def mainFile = upload(System.getenv('CURSEFORGE_PROJECT_ID'), jar)
+        def mainFile = upload(curseforge_project_id, jar)
         mainFile.changelog = System.getenv('CHANGELOG') ?: 'See GitHub for changes'
         mainFile.changelogType = 'markdown'
         mainFile.releaseType = System.getenv('RELEASE_TYPE') ?: 'release'
-        mainFile.displayName = "${System.getenv('MOD_ID')}-${System.getenv('MOD_VERSION')}-${System.getenv('MC_VERSION')}"
-        mainFile.addGameVersion System.getenv('MC_VERSION')
+        mainFile.displayName = "${mod_id}-${mod_version}-${minecraft_version}"
+        mainFile.addGameVersion minecraft_version
         mainFile.addModLoader 'NeoForge'
 
         // Add sources and javadoc as additional files
         def sourcesFile = mainFile.withAdditionalFile(sourcesJar)
-        sourcesFile.displayName = "${System.getenv('MOD_ID')}-${System.getenv('MOD_VERSION')}-${System.getenv('MC_VERSION')}-sources"
+        sourcesFile.displayName = "${mod_id}-${mod_version}-${minecraft_version}-sources"
 
         def javadocFile = mainFile.withAdditionalFile(javadocJar)
-        javadocFile.displayName = "${System.getenv('MOD_ID')}-${System.getenv('MOD_VERSION')}-${System.getenv('MC_VERSION')}-javadoc"
+        javadocFile.displayName = "${mod_id}-${mod_version}-${minecraft_version}-javadoc"
     }
 }
