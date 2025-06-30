@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 public class GradientUtils {
     /**
-     * Pattern matching color codes (&#RRGGBB) and formatting codes (&[lonm]).
+     * Pattern matching color codes {@literal (&#RRGGBB)} and formatting codes (&[lonm]).
      * - Group 1: Formatting code (l, o, n, m)
      * - Group 2: Hex color (RRGGBB)
      */
@@ -22,14 +22,17 @@ public class GradientUtils {
 
     /**
      * Parses a string containing color codes and formatting codes into a Minecraft Component.
-     * Supports hex color codes (&#RRGGBB) and formatting codes (&l, &o, &n, &m).
+     * Supports hex color codes {@literal (&#RRGGBB)} and formatting codes {@literal (&l, &o, &n, &m)}.
+     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     * String text = "&#FF0000&l&oRed Bold Italic&#00FF00Normal Green";
+     * Component result = GradientUtils.parseFormatting(text);
+     * }</pre>
      *
      * @param input The string to parse, containing color and formatting codes
      * @return A Component with the applied colors and formatting
      *
-     * @example
-     * String text = "&#FF0000&l&oRed Bold Italic&#00FF00Normal Green";
-     * Component result = GradientUtils.parseFormatting(text);
      */
     public static Component parseFormatting(String input) {
         MutableComponent result = Component.empty();
