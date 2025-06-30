@@ -71,6 +71,9 @@ jobs:
           MOD_VERSION=$(sed -n 's/^mod_version=//p' gradle.properties | tr -d ' \r\n')
           MC_VERSION=$(sed -n 's/^minecraft_version=//p' gradle.properties | tr -d ' \r\n')
           NEO_VERSION=$(sed -n 's/^neo_version=//p' gradle.properties | tr -d ' \r\n')
+          MOD_ID=$(sed -n 's/^mod_id=//p' gradle.properties | tr -d ' \r\n')
+          MOD_NAME=$(sed -n 's/^mod_name=//p' gradle.properties | tr -d ' \r\n')
+          CURSEFORGE_PROJECT_ID=$(sed -n 's/^curseforge_project_id=//p' gradle.properties | tr -d ' \r\n')
           
           echo "Mod version: $MOD_VERSION"
           echo "Minecraft version: $MC_VERSION"
@@ -80,6 +83,9 @@ jobs:
           MOD_VERSION=${MOD_VERSION}
           MC_VERSION=${MC_VERSION}
           NEO_VERSION=${NEO_VERSION}
+          MOD_ID=${MOD_ID}
+          MOD_NAME=${MOD_NAME}
+          CURSEFORGE_PROJECT_ID=${CURSEFORGE_PROJECT_ID}
           EOF
 
       - name: Find built JAR files
@@ -131,9 +137,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.check_version.outputs.TAG }}
-          release_name: Researchd ${{ steps.check_version.outputs.TAG }}
+          release_name: ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
           body: |
-            ## Researchd ${{ steps.check_version.outputs.TAG }}
+            ## ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
             
             ### Changes
             ${{ steps.commit_log.outputs.log }}
@@ -144,7 +150,7 @@ jobs:
             - **Mod Version:** ${{ steps.mod_info.outputs.MOD_VERSION }}
             
             ### Download
-            Available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/researchd) and below.
+            Available on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/${{ steps.mod_info.outputs.MOD_ID }}) and below.
           draft: false
           prerelease: ${{ contains(steps.check_version.outputs.VERSION, '-') }}
 
@@ -170,6 +176,12 @@ jobs:
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
           RELEASE_TYPE: ${{ steps.check_version.outputs.RELEASE_TYPE }}
           CHANGELOG: ${{ github.event.head_commit.message }}
+          MOD_VERSION: ${{ steps.mod_info.outputs.MOD_VERSION }}
+          MC_VERSION: ${{ steps.mod_info.outputs.MC_VERSION }}
+          MOD_ID: ${{ steps.mod_info.outputs.MOD_ID }}
+          MOD_NAME: ${{ steps.mod_info.outputs.MOD_NAME }}
+          CURSEFORGE_PROJECT_ID: ${{ steps.mod_info.outputs.CURSEFORGE_PROJECT_ID }}
+
         run: ./gradlew curseforge
 
       # Always upload artifacts for every build (even without release)
