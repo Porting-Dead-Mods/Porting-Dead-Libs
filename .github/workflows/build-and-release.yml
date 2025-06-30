@@ -28,7 +28,7 @@ jobs:
           # Check if commit message contains a semver pattern
           if [[ $COMMIT_MSG =~ v?([0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?(\+[a-zA-Z0-9.-]+)?) ]]; then
             VERSION="${BASH_REMATCH[1]}"
-            TAG="v$VERSION"
+            TAG="$VERSION"
           
             echo "Found version: $VERSION"
             echo "SHOULD_RELEASE=true" >> $GITHUB_OUTPUT
@@ -134,9 +134,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.check_version.outputs.TAG }}
-          name: ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
+          name: "${{ steps.mod_info.outputs.MOD_NAME }} v${{ steps.check_version.outputs.TAG }}"
           body: |
-            ## ${{ steps.mod_info.outputs.MOD_NAME }} ${{ steps.check_version.outputs.TAG }}
+            ## ${{ steps.mod_info.outputs.MOD_NAME }} v${{ steps.check_version.outputs.TAG }}
 
             ### Changes
             ${{ steps.commit_log.outputs.log }}
