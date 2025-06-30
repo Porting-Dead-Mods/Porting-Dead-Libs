@@ -3,6 +3,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '1.0.23'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -23,6 +24,11 @@ repositories {
 
 base {
     archivesName = mod_id
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 // Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
@@ -186,5 +192,33 @@ idea {
     module {
         downloadSources = true
         downloadJavadoc = true
+    }
+}
+
+if (System.getenv('CURSEFORGE_TOKEN')) {
+    curseforge {
+        apiKey = System.getenv('CURSEFORGE_TOKEN')
+
+        project {
+            id = 1173919
+            changelog = System.getenv('CHANGELOG') ?: 'See GitHub for changes'
+            changelogType = 'markdown'
+            releaseType = System.getenv('RELEASE_TYPE') ?: 'release'
+
+            addGameVersion '1.21.1'
+            addGameVersion 'NeoForge'
+
+            mainArtifact(jar) {
+                displayName = "portingdeadlibs-${System.getenv('MOD_VERSION')}-${System.getenv('MC_VERSION')}"
+            }
+            addArtifact sourcesJar
+            addArtifact javadocJar
+        }
+
+        options {
+            javaVersionAutoDetect = false
+            javaIntegration = false
+            forgeGradleIntegration = false
+        }
     }
 }
