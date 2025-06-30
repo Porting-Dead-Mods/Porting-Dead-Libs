@@ -206,7 +206,7 @@ if (System.getenv('CURSEFORGE_TOKEN')) {
         disableVersionDetection()
 
         // Upload main jar
-        def mainFile = upload(${System.getenv('CURSEFORGE_PROJECT_ID')}, jar)
+        def mainFile = upload(System.getenv('CURSEFORGE_PROJECT_ID'), jar)
         mainFile.changelog = System.getenv('CHANGELOG') ?: 'See GitHub for changes'
         mainFile.changelogType = 'markdown'
         mainFile.releaseType = System.getenv('RELEASE_TYPE') ?: 'release'
