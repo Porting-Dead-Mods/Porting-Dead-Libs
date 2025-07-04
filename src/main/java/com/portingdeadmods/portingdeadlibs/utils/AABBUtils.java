@@ -94,9 +94,9 @@ public final class AABBUtils {
 		int maxZ = (int) Math.floor(aabb.maxZ);
 
 		UniqueArray<BlockPos> positions = new UniqueArray<>();
-		for (int x = minX; x <= maxX; x++) {
-			for (int y = minY; y <= maxY; y++) {
-				for (int z = minZ; z <= maxZ; z++) {
+		for (int x = minX; x < maxX; x++) {
+			for (int y = minY; y < maxY; y++) {
+				for (int z = minZ; z < maxZ; z++) {
 					positions.add(new BlockPos(x, y, z));
 				}
 			}
