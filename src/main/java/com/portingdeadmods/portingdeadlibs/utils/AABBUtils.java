@@ -57,7 +57,7 @@ public final class AABBUtils {
 	 * @return The resulting AABB
 	 */
 	public static AABB create(double left, double right, double down, double up, double front, double back, double x, double y, double z) {
-		return new AABB(left + x, down + y, front + z, right + x, up + y, back + z);
+		return new AABB(-left + x, -down + y, -front + z, right + x, up + y, back + z);
 	}
 
 	/**
@@ -74,9 +74,9 @@ public final class AABBUtils {
 	 */
 	public static AABB create(double left, double right, double down, double up, double front, double back, BlockPos pos) {
 		AABB blockPosAABB = new AABB(pos);
-		blockPosAABB.inflate(left + right, down + up, front + back);
-		blockPosAABB.move((left - right) / 2, (down - up) / 2, (front - back) / 2);
-		return create(left, right, down, up, front, back, pos.getX(), pos.getY(), pos.getZ());
+		return blockPosAABB
+				.inflate((left + right) / 2, (down + up) / 2, (front + back) / 2)
+				.move(((-left) + right) / 2, ((-down) + up) / 2, ((-front) + back) / 2);
 	}
 
 	/**
