@@ -115,9 +115,14 @@ jobs:
           if [ -z "${{ steps.prev_tag.outputs.tag }}" ]; then
             echo "log=- First release" >> "$GITHUB_OUTPUT"
           else
-            echo "log<<EOF" >> "$GITHUB_OUTPUT"
-            git log ${{ steps.prev_tag.outputs.tag }}..HEAD --pretty=format:"- %s (%an)" >> "$GITHUB_OUTPUT"
-            echo "EOF" >> "$GITHUB_OUTPUT"
+            # Use a temporary file to avoid heredoc delimiter issues
+            TEMP_LOG=$(mktemp)
+            git log ${{ steps.prev_tag.outputs.tag }}..HEAD --pretty=format:"- %s (%an)" > "$TEMP_LOG"
+            echo "log<<COMMIT_LOG_DELIMITER_$(date +%s)" >> "$GITHUB_OUTPUT"
+            cat "$TEMP_LOG" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            echo "COMMIT_LOG_DELIMITER_$(date +%s)" >> "$GITHUB_OUTPUT"
+            rm "$TEMP_LOG"
           fi
 
       # Only create tag and release if version was found in commit message
