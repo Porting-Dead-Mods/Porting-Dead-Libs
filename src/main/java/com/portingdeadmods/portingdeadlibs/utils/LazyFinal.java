@@ -2,6 +2,7 @@ package com.portingdeadmods.portingdeadlibs.utils;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 
@@ -76,6 +77,18 @@ public class LazyFinal<T> implements Supplier<T> {
 
 			this.cachedValue = value;
 			this.initialized = true;
+		}
+	}
+
+	/**
+	 * Executes the given consumer with the cached value if initialized.
+	 * Does nothing if not yet initialized.
+	 *
+	 * @param consumer the consumer to execute with the cached value
+	 */
+	public void ifInitialized(Consumer<T> consumer) {
+		if (initialized) {
+			consumer.accept(cachedValue);
 		}
 	}
 
