@@ -165,6 +165,26 @@ public final class GuiUtils {
             return this;
         }
 
+        public ShaderChain mirrorHorizontal() {
+            effects.add(new Effects.Mirror(Effects.Mirror.MirrorMode.HORIZONTAL));
+            return this;
+        }
+
+        public ShaderChain mirrorVertical() {
+            effects.add(new Effects.Mirror(Effects.Mirror.MirrorMode.VERTICAL));
+            return this;
+        }
+
+        public ShaderChain mirrorBoth() {
+            effects.add(new Effects.Mirror(Effects.Mirror.MirrorMode.BOTH));
+            return this;
+        }
+
+        public ShaderChain mirror(Effects.Mirror.MirrorMode mode) {
+            effects.add(new Effects.Mirror(mode));
+            return this;
+        }
+
         /**
          * Enable caching for this chain
          */

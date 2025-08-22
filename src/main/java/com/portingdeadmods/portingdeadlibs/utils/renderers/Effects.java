@@ -7,11 +7,17 @@ import net.neoforged.neoforge.client.model.IModelBuilder;
 import java.util.Random;
 
 public class Effects {
+    /**
+     * Should be used whenever the result would be printed on a new NativeImage instance
+     */
     public static abstract class PixelEffect {
         public abstract NativeImage apply(NativeImage input);
         public abstract String getName();
     }
 
+    /**
+     *  Should be used whenever the process is sort of simple and can be done pixel by pixel on the original image (eg. darkening)
+     */
     public static abstract class SimplePixelEffect extends PixelEffect {
         @Override
         public NativeImage apply(NativeImage input) {
@@ -499,6 +505,52 @@ public class Effects {
         @Override
         public String getName() {
             return "blur_" + radius;
+        }
+    }
+
+    public static class Mirror extends Effects.PixelEffect {
+        public enum MirrorMode {
+            HORIZONTAL,
+            VERTICAL,
+            BOTH
+        }
+
+        private final MirrorMode mode;
+
+        Mirror(MirrorMode mode) {
+            this.mode = mode;
+        }
+
+        @Override
+        public NativeImage apply(NativeImage input) {
+            int width = input.getWidth();
+            int height = input.getHeight();
+            NativeImage output = new NativeImage(width, height, false);
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int srcX = x;
+                    int srcY = y;
+
+                    switch (mode) {
+                        case HORIZONTAL -> srcX = width - 1 - x;
+                        case VERTICAL -> srcY = height - 1 - y;
+                        case BOTH -> {
+                            srcX = width - 1 - x;
+                            srcY = height - 1 - y;
+                        }
+                    }
+
+                    output.setPixelRGBA(x, y, input.getPixelRGBA(srcX, srcY));
+                }
+            }
+
+            return output;
+        }
+
+        @Override
+        public String getName() {
+            return "mirror_" + mode.name().toLowerCase();
         }
     }
 
