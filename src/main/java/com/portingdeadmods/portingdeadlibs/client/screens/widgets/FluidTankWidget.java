@@ -1,9 +1,8 @@
-package com.portingdeadmods.portingdeadlibs.impl.client.screens.widgets;
+package com.portingdeadmods.portingdeadlibs.client.screens.widgets;
 
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import com.portingdeadmods.portingdeadlibs.api.gui.utils.FluidTankRenderer;
-import com.portingdeadmods.portingdeadlibs.utils.renderers.GuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;

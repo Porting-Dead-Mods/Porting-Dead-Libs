@@ -1,4 +1,4 @@
-package com.portingdeadmods.portingdeadlibs.impl.client.screens.widgets;
+package com.portingdeadmods.portingdeadlibs.client.screens.widgets;
 
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;

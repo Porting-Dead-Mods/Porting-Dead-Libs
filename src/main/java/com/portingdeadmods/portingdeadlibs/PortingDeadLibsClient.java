@@ -3,6 +3,7 @@ package com.portingdeadmods.portingdeadlibs;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.portingdeadmods.portingdeadlibs.api.fluids.BaseFluidType;
+import com.portingdeadmods.portingdeadlibs.networking.RedstoneSignalTypeSyncPayload;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
@@ -15,6 +16,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,6 +33,12 @@ public final class PortingDeadLibsClient {
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
+        modEventBus.addListener(this::registerPayloads);
+    }
+
+    private void registerPayloads(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar(MODID);
+        registrar.playToServer(RedstoneSignalTypeSyncPayload.TYPE, RedstoneSignalTypeSyncPayload.STREAM_CODEC, RedstoneSignalTypeSyncPayload::handle);
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {
