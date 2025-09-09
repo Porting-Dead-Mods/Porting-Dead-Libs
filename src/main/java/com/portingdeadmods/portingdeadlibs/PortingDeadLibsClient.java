@@ -33,12 +33,6 @@ public final class PortingDeadLibsClient {
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
-        modEventBus.addListener(this::registerPayloads);
-    }
-
-    private void registerPayloads(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(MODID);
-        registrar.playToServer(RedstoneSignalTypeSyncPayload.TYPE, RedstoneSignalTypeSyncPayload.STREAM_CODEC, RedstoneSignalTypeSyncPayload::handle);
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {

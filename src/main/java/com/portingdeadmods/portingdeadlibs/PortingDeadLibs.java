@@ -1,6 +1,9 @@
 package com.portingdeadmods.portingdeadlibs;
 
+import com.portingdeadmods.portingdeadlibs.networking.RedstoneSignalTypeSyncPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.slf4j.Logger;
 
@@ -17,6 +20,7 @@ public final class PortingDeadLibs {
 
     public PortingDeadLibs(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerRegistries);
+        modEventBus.addListener(this::registerPayloads);
     }
 
     public static ResourceLocation rl(String path) {
@@ -28,4 +32,10 @@ public final class PortingDeadLibs {
         event.register(PDLRegistries.TRANSLATION);
         event.register(PDLRegistries.SAVED_DATA);
     }
+
+    private void registerPayloads(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar(MODID);
+        registrar.playToServer(RedstoneSignalTypeSyncPayload.TYPE, RedstoneSignalTypeSyncPayload.STREAM_CODEC, RedstoneSignalTypeSyncPayload::handle);
+    }
+
 }
