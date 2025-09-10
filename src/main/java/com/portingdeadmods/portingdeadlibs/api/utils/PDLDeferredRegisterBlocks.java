@@ -24,6 +24,10 @@ public class PDLDeferredRegisterBlocks extends DeferredRegister.Blocks {
         this.blockItems = new ArrayList<>();
     }
 
+    public static PDLDeferredRegisterBlocks createBlocks(String modid, DeferredRegister.Items itemsRegistry) {
+        return new PDLDeferredRegisterBlocks(modid, itemsRegistry);
+    }
+
     public <B extends Block> DeferredBlock<B> registerWithItem(String name, Supplier<? extends B> sup) {
         DeferredBlock<B> block = this.register(name, key -> sup.get());
         DeferredItem<BlockItem> item = this.itemsRegistry.registerSimpleBlockItem(name, block, new Item.Properties());

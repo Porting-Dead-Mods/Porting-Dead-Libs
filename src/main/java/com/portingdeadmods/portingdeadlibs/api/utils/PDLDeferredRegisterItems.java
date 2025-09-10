@@ -23,6 +23,10 @@ public class PDLDeferredRegisterItems extends DeferredRegister.Items {
         this.creativeTabItems = new ArrayList<>();
     }
 
+    public static Items createItems(String modid) {
+        return new PDLDeferredRegisterItems(modid);
+    }
+
     @Override
     public <I extends Item> DeferredItem<I> register(String name, Function<ResourceLocation, ? extends I> func) {
         DeferredItem<I> item = super.register(name, func);
