@@ -24,7 +24,7 @@ public class PDLDeferredRegisterBlocks extends DeferredRegister.Blocks {
         this.blockItems = new ArrayList<>();
     }
 
-    public static PDLDeferredRegisterBlocks createBlocks(String modid, DeferredRegister.Items itemsRegistry) {
+    public static PDLDeferredRegisterBlocks createBlocksRegister(String modid, DeferredRegister.Items itemsRegistry) {
         return new PDLDeferredRegisterBlocks(modid, itemsRegistry);
     }
 
