@@ -23,7 +23,7 @@ public class PDLDeferredRegisterItems extends DeferredRegister.Items {
         this.creativeTabItems = new ArrayList<>();
     }
 
-    public static Items createItems(String modid) {
+    public static PDLDeferredRegisterItems createItems(String modid) {
         return new PDLDeferredRegisterItems(modid);
     }
 
