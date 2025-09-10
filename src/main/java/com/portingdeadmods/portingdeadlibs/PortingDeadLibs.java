@@ -1,6 +1,9 @@
 package com.portingdeadmods.portingdeadlibs;
 
+import com.portingdeadmods.portingdeadlibs.api.data.saved.PDLSavedData;
+import com.portingdeadmods.portingdeadlibs.api.data.saved.SavedDataHolder;
 import com.portingdeadmods.portingdeadlibs.networking.RedstoneSignalTypeSyncPayload;
+import com.portingdeadmods.portingdeadlibs.networking.SyncSavedDataPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -36,6 +39,10 @@ public final class PortingDeadLibs {
     private void registerPayloads(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MODID);
         registrar.playToServer(RedstoneSignalTypeSyncPayload.TYPE, RedstoneSignalTypeSyncPayload.STREAM_CODEC, RedstoneSignalTypeSyncPayload::handle);
+        for (PDLSavedData<?> savedData : PDLRegistries.SAVED_DATA) {
+            SavedDataHolder<?> holder = SavedDataHolder.fromValue(savedData);
+            registrar.playToClient(SyncSavedDataPayload.type(holder), SyncSavedDataPayload.streamCodec(holder), SyncSavedDataPayload::handle);
+        }
     }
 
 }

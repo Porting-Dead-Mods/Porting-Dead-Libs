@@ -3,6 +3,7 @@ package com.portingdeadmods.portingdeadlibs.api.data.saved;
 import com.portingdeadmods.portingdeadlibs.PDLRegistries;
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import com.portingdeadmods.portingdeadlibs.api.client.data.PDLClientSavedData;
+import com.portingdeadmods.portingdeadlibs.networking.SyncSavedDataPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,8 +23,9 @@ public final class SavedDataHandler {
             for (Map.Entry<ResourceKey<PDLSavedData<?>>, PDLSavedData<?>> savedData : PDLRegistries.SAVED_DATA.entrySet()) {
                 PDLSavedData<?> value = savedData.getValue();
                 if (value.isSynced()) {
+                    value.preSyncFunction().accept(serverPlayer);
                     sendSavedDataSyncPayload(serverPlayer, savedData.getKey().location(), value);
-                    //value.onSyncFunction().accept(serverPlayer);
+                    value.postSyncFunction().accept(serverPlayer);
                 }
             }
         }
@@ -37,7 +39,7 @@ public final class SavedDataHandler {
     private static <T> void sendSavedDataSyncPayload(ServerPlayer serverPlayer, ResourceLocation id, PDLSavedData<?> savedData) {
         PDLSavedData<T> savedData1 = (PDLSavedData<T>) savedData;
         T data = savedData1.getData(serverPlayer.serverLevel());
-        //PacketDistributor.sendToPlayer(serverPlayer, new SyncSavedDataPayload<>(new SavedDataHolder<>(id, savedData1), data));
+        PacketDistributor.sendToPlayer(serverPlayer, new SyncSavedDataPayload<>(new SavedDataHolder<>(id, savedData1), data));
     }
 
 }
