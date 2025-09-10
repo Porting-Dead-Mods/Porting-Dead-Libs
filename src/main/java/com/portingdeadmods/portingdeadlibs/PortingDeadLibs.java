@@ -1,5 +1,6 @@
 package com.portingdeadmods.portingdeadlibs;
 
+import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
 import com.portingdeadmods.portingdeadlibs.api.data.saved.PDLSavedData;
 import com.portingdeadmods.portingdeadlibs.api.data.saved.SavedDataHolder;
 import com.portingdeadmods.portingdeadlibs.networking.RedstoneSignalTypeSyncPayload;
@@ -24,6 +25,9 @@ public final class PortingDeadLibs {
     public PortingDeadLibs(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerRegistries);
         modEventBus.addListener(this::registerPayloads);
+
+        PDLDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
+
     }
 
     public static ResourceLocation rl(String path) {
