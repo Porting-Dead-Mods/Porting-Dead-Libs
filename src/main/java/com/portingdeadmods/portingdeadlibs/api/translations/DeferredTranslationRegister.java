@@ -6,20 +6,29 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class DeferredTranslationRegister extends DeferredRegister<TranslatableConstant> {
-    protected DeferredTranslationRegister(String namespace) {
-        super(PDLRegistries.TRANSLATION_KEY, namespace);
+    private final Map<String, String> defaultTranslations;
+
+    protected DeferredTranslationRegister(String modid) {
+        super(PDLRegistries.TRANSLATION_KEY, modid);
+        this.defaultTranslations = new HashMap<>();
     }
 
-    public static DeferredTranslationRegister createTranslations(String namespace) {
-        return new DeferredTranslationRegister(namespace);
+    public static DeferredTranslationRegister createTranslations(String modid) {
+        return new DeferredTranslationRegister(modid);
     }
 
-    public DeferredTranslation<TranslatableConstant> registerSimple(String name, String category) {
-        return this.register(name, () -> new TranslatableConstant(name, category));
+    public TranslationCategory createCategory(String category) {
+        return new TranslationCategory(this, category);
+    }
+
+    public Map<String, String> getDefaultTranslations() {
+        return defaultTranslations;
     }
 
     @Override
