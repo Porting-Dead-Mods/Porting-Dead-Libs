@@ -96,9 +96,6 @@ public abstract class AbstractScroller extends AbstractWidget {
 
     @Override
     public boolean clicked(double mouseX, double mouseY) {
-        System.out.println("Clicked Scroller at: " + mouseX + ":" + mouseY);
-        System.out.println("Scroller at: " + this.offsetX + ":" + this.offsetY);
-
         boolean flag;
         if (this.mode == AbstractScroller.Mode.VERTICAL) {
             flag = (
@@ -119,8 +116,6 @@ public abstract class AbstractScroller extends AbstractWidget {
                             mouseY < this.offsetY + this.height
             );
         }
-
-        System.out.println("Clicked inside Scroller: " + flag);
 
         if (flag) mbDown = true;
         updatePos(mouseX, mouseY);
