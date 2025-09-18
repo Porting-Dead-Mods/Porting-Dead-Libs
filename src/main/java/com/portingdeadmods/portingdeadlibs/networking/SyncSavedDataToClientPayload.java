@@ -9,7 +9,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jetbrains.annotations.NotNull;
 
-public record SyncSavedDataPayload<T>(SavedDataHolder<T> holder, T value) implements CustomPacketPayload {
+public record SyncSavedDataToClientPayload<T>(SavedDataHolder<T> holder, T value) implements CustomPacketPayload {
     @Override
     public @NotNull Type<? extends CustomPacketPayload> type() {
         return type(holder);
@@ -26,21 +26,21 @@ public record SyncSavedDataPayload<T>(SavedDataHolder<T> holder, T value) implem
         });
     }
 
-    public static <T> Type<SyncSavedDataPayload<T>> type(SavedDataHolder<T> dataHolder) {
-        return new Type<>(dataHolder.key().withPrefix("sync_").withSuffix("_payload"));
+    public static <T> Type<SyncSavedDataToClientPayload<T>> type(SavedDataHolder<T> dataHolder) {
+        return new Type<>(dataHolder.key().withPrefix("sync_").withSuffix("_to_client_payload"));
     }
 
-    private static <T> SyncSavedDataPayload<T> untyped(SavedDataHolder<?> network, T value) {
-        return new SyncSavedDataPayload<>((SavedDataHolder<T>) network, value);
+    private static <T> SyncSavedDataToClientPayload<T> untyped(SavedDataHolder<?> network, T value) {
+        return new SyncSavedDataToClientPayload<>((SavedDataHolder<T>) network, value);
     }
 
-    public static <T> StreamCodec<RegistryFriendlyByteBuf, SyncSavedDataPayload<T>> streamCodec(SavedDataHolder<?> dataHolder) {
+    public static <T> StreamCodec<RegistryFriendlyByteBuf, SyncSavedDataToClientPayload<T>> streamCodec(SavedDataHolder<?> dataHolder) {
         return StreamCodec.composite(
                 SavedDataHolder.STREAM_CODEC,
-                SyncSavedDataPayload::holder,
+                SyncSavedDataToClientPayload::holder,
                 ((SavedDataHolder<T>) dataHolder).value().streamCodec(),
-                SyncSavedDataPayload::value,
-                SyncSavedDataPayload::untyped
+                SyncSavedDataToClientPayload::value,
+                SyncSavedDataToClientPayload::untyped
         );
     }
 
