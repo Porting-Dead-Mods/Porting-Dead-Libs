@@ -53,7 +53,7 @@ public abstract class AbstractScroller extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int i, int i1, float v) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.offsetX = this.parentScreen.getGuiLeft() + this.getX();
         this.offsetY = this.parentScreen.getGuiTop() + this.getY();
 
@@ -62,6 +62,9 @@ public abstract class AbstractScroller extends AbstractWidget {
         } else {
             guiGraphics.blitSprite(this.sprite, this.offsetX + (int) (this.scrollPercentage * this.trackLength), this.offsetY, this.width, this.height);
         }
+
+        if (this.mbDown)
+            this.updatePos(mouseX, mouseY);
     }
 
     @Override
