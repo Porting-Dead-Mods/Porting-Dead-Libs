@@ -21,6 +21,11 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+/*
+ * Most of this code is from the Create mod <3
+ *
+ * Thank you to the contributors of Create
+ */
 public class DynamicPack implements PackResources {
     private final Map<String, IoSupplier<InputStream>> files = new HashMap<>();
 
