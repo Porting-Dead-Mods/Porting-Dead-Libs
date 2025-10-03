@@ -18,11 +18,15 @@ import java.util.function.Consumer;
  *
  * Thank you to the contributors of Create
  */
-public record DynamicPackSource(String packId, PackType packType, Pack.Position packPosition,
+public record DynamicPackSource(String packId, PackType packType, Pack.Position packPosition, PackSource source,
                                 PackResources packResources) implements RepositorySource {
+    public DynamicPackSource(String packId, PackType packType, Pack.Position packPosition, PackResources packResources) {
+        this(packId, packType, packPosition, PackSource.BUILT_IN, packResources);
+    }
+
     @Override
     public void loadPacks(@NotNull Consumer<Pack> onLoad) {
-        PackLocationInfo locationInfo = new PackLocationInfo(packId, Component.literal(packId), PackSource.BUILT_IN, Optional.empty());
+        PackLocationInfo locationInfo = new PackLocationInfo(packId, Component.literal(packId), source, Optional.empty());
         PackSelectionConfig selectionConfig = new PackSelectionConfig(true, packPosition, true);
         Pack.ResourcesSupplier resourcesSupplier = new Pack.ResourcesSupplier() {
             @Override

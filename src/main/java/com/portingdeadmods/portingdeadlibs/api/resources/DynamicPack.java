@@ -10,7 +10,9 @@ import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.RepositorySource;
 import net.minecraft.server.packs.resources.IoSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,15 +37,19 @@ public class DynamicPack implements PackResources {
     private final PackLocationInfo packLocationInfo;
 
     public DynamicPack(ResourceLocation packId, PackType packType) {
-        this(packId.toString(), packType);
+        this(packId.toString(), packType, PackSource.BUILT_IN);
     }
 
-    private DynamicPack(String packId, PackType packType) {
+    public DynamicPack(ResourceLocation packId, PackType packType, PackSource source) {
+        this(packId.toString(), packType, source);
+    }
+
+    private DynamicPack(String packId, PackType packType, PackSource source) {
         this.packId = packId;
         this.packType = packType;
 
-        metadata = new PackMetadataSection(Component.empty(), SharedConstants.getCurrentVersion().getPackVersion(packType));
-        packLocationInfo = new PackLocationInfo(packId, Component.literal(packId), PackSource.BUILT_IN, Optional.empty());
+        this.metadata = new PackMetadataSection(Component.empty(), SharedConstants.getCurrentVersion().getPackVersion(packType));
+        this.packLocationInfo = new PackLocationInfo(packId, Component.literal(packId), source, Optional.empty());
     }
 
     private static String getPath(PackType packType, ResourceLocation resourceLocation) {
@@ -125,4 +131,9 @@ public class DynamicPack implements PackResources {
     @Override
     public void close() {
     } // NO-OP
+
+    public RepositorySource toSource(Pack.Position position) {
+        return new DynamicPackSource(this.packId, this.packType, position, this);
+    }
+
 }
