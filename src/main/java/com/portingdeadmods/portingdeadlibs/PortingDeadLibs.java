@@ -1,5 +1,7 @@
 package com.portingdeadmods.portingdeadlibs;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
 import com.portingdeadmods.portingdeadlibs.api.data.saved.PDLSavedData;
 import com.portingdeadmods.portingdeadlibs.api.data.saved.SavedDataHolder;
@@ -22,6 +24,10 @@ import net.neoforged.fml.common.Mod;
 public final class PortingDeadLibs {
     public static final String MODID = "portingdeadlibs";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Gson GSON = new GsonBuilder()
+            .setPrettyPrinting()
+            .disableHtmlEscaping()
+            .create();
 
     public PortingDeadLibs(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerRegistries);
