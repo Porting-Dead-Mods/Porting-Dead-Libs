@@ -25,25 +25,13 @@ public class FluidReferenceSlot extends ReferenceSlot<FluidStack> {
 	}
 
 	@Override
-	public boolean setReference(ItemStack stack) {
-		// This is called for direct item stack references
-		// We only care about fluid containers
-		IFluidHandlerItem fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
-		if (fluidHandler != null) {
-			FluidStack fluid = fluidHandler.getFluidInTank(0);
-			if (!fluid.isEmpty()) {
-				return setReferenceDirectly(fluid);
-			}
-		}
-		return false;
+	public boolean setReference(FluidStack stack) {
+		return setReferenceDirectly(stack);
 	}
 
 	@Override
 	protected FluidStack copyReference(FluidStack reference) {
-		FluidStack copy = reference.copy();
-		// Set to a standard amount for display
-		copy.setAmount(1000); // 1 bucket amount for display
-		return copy;
+		return reference.copy();
 	}
 
 	@Override

@@ -1,5 +1,9 @@
 package com.portingdeadmods.portingdeadlibs;
 
+import com.portingdeadmods.portingdeadlibs.registries.PDLBlockEntityTypes;
+import com.portingdeadmods.portingdeadlibs.registries.PDLBlocks;
+import com.portingdeadmods.portingdeadlibs.registries.PDLItems;
+import com.portingdeadmods.portingdeadlibs.registries.PDLMenuTypes;
 import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
 import com.portingdeadmods.portingdeadlibs.api.data.saved.PDLSavedData;
 import com.portingdeadmods.portingdeadlibs.api.data.saved.SavedDataHolder;
@@ -28,6 +32,11 @@ public final class PortingDeadLibs {
 
         PDLDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
 
+
+        PDLItems.ITEMS.register(modEventBus);
+        PDLBlocks.BLOCKS.register(modEventBus);
+        PDLBlockEntityTypes.BLOCK_ENTITIES.register(modEventBus);
+        PDLMenuTypes.MENU_TYPES.register(modEventBus);
     }
 
     public static ResourceLocation rl(String path) {

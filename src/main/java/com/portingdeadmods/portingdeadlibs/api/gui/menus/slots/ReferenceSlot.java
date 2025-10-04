@@ -44,7 +44,7 @@ public abstract class ReferenceSlot<T> extends AbstractSlot {
 	 * @param stack The stack the player is holding
 	 * @return true if the reference was set, false otherwise
 	 */
-	public abstract boolean setReference(ItemStack stack);
+	public abstract boolean setReference(T stack);
 
 	/**
 	 * Sets the reference directly

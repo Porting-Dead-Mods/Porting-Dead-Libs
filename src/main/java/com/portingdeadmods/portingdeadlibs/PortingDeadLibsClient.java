@@ -3,7 +3,10 @@ package com.portingdeadmods.portingdeadlibs;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.portingdeadmods.portingdeadlibs.api.fluids.BaseFluidType;
-import com.portingdeadmods.portingdeadlibs.networking.RedstoneSignalTypeSyncPayload;
+import com.portingdeadmods.portingdeadlibs.content.client.screens.CreativeFluidSupplierScreen;
+import com.portingdeadmods.portingdeadlibs.content.client.screens.CreativeItemSupplierScreen;
+import com.portingdeadmods.portingdeadlibs.content.client.screens.CreativePowerSourceScreen;
+import com.portingdeadmods.portingdeadlibs.registries.PDLMenuTypes;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
@@ -13,11 +16,10 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +35,7 @@ public final class PortingDeadLibsClient {
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
+        modEventBus.addListener(this::registerMenus);
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {
@@ -68,6 +71,11 @@ public final class PortingDeadLibsClient {
                 }, baseFluidType);
             }
         }
+    }
 
+    private void registerMenus(RegisterMenuScreensEvent event) {
+        event.register(PDLMenuTypes.CREATIVE_FLUID_SUPPLIER.get(), CreativeFluidSupplierScreen::new);
+        event.register(PDLMenuTypes.CREATIVE_ITEM_SUPPLIER.get(), CreativeItemSupplierScreen::new);
+        event.register(PDLMenuTypes.CREATIVE_POWER_SOURCE.get(), CreativePowerSourceScreen::new);
     }
 }
