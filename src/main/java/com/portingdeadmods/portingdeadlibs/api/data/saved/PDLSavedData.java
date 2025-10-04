@@ -3,12 +3,17 @@ package com.portingdeadmods.portingdeadlibs.api.data.saved;
 import com.mojang.serialization.Codec;
 import com.portingdeadmods.portingdeadlibs.PDLRegistries;
 import com.portingdeadmods.portingdeadlibs.api.client.data.PDLClientSavedData;
+import com.portingdeadmods.portingdeadlibs.networking.SyncSavedDataToClientPayload;
+import com.portingdeadmods.portingdeadlibs.networking.SyncSavedDataToServerPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -56,8 +61,31 @@ public final class PDLSavedData<T> {
         return global;
     }
 
+    /**
+     * @return If it is synced to the player on load
+     */
     public boolean isSynced() {
         return streamCodec != null;
+    }
+
+    public void syncToPlayer(ServerPlayer player) {
+        if (!isSynced()) return;
+
+        T data = getData(player.level());
+
+        PacketDistributor.sendToPlayer(player, new SyncSavedDataToClientPayload<>(new SavedDataHolder<>(PDLRegistries.SAVED_DATA.getKey(this), this), data));
+    }
+
+    public void sync(Level level) {
+        if (!isSynced()) return;
+
+        T data = getData(level);
+
+        if (level.isClientSide()) {
+            PacketDistributor.sendToServer(new SyncSavedDataToServerPayload<>(new SavedDataHolder<>(PDLRegistries.SAVED_DATA.getKey(this), this), data));
+        } else {
+            PacketDistributor.sendToAllPlayers(new SyncSavedDataToClientPayload<>(new SavedDataHolder<>(PDLRegistries.SAVED_DATA.getKey(this), this), data));
+        }
     }
 
     public void setData(Level level, T data) {
@@ -118,6 +146,10 @@ public final class PDLSavedData<T> {
             this.codec = codec;
         }
 
+        /**
+         * @param streamCodec Encoder/Decoder
+         * @return Should sync on player login
+         */
         public Builder<T> synced(StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
             this.streamCodec = streamCodec;
             return this;

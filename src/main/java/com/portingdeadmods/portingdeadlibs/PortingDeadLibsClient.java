@@ -39,7 +39,7 @@ public final class PortingDeadLibsClient {
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        for(FluidType fluidType : NeoForgeRegistries.FLUID_TYPES) {
+        for (FluidType fluidType : NeoForgeRegistries.FLUID_TYPES) {
             if (fluidType instanceof final BaseFluidType baseFluidType) {
                 event.registerFluidType(new IClientFluidTypeExtensions() {
                     public @NotNull ResourceLocation getStillTexture() {
