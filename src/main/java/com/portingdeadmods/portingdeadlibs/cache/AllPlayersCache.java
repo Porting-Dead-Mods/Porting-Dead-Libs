@@ -1,6 +1,5 @@
 package com.portingdeadmods.portingdeadlibs.cache;
 
-import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import com.portingdeadmods.portingdeadlibs.utils.UniqueArray;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -40,7 +39,6 @@ public class AllPlayersCache {
 		PlayerSkin skin = SKINS.get(uuid);
 		if (skin == null) {
 			skin = DefaultPlayerSkin.get(uuid);
-			PortingDeadLibs.LOGGER.error("Skin not found in cache for UUID: {}, using default skin. Probably fetched on serverside.", uuid);
 		};
 		return skin;
 	}
