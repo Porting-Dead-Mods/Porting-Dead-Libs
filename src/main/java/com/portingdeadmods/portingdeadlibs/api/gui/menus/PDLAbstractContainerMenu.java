@@ -2,8 +2,8 @@ package com.portingdeadmods.portingdeadlibs.api.gui.menus;
 
 import com.google.common.collect.ImmutableList;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
-import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.FluidReferenceSlot;
-import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.ItemReferenceSlot;
+import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.SlotFluidReferenceHandler;
+import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.SlotItemReferenceHandler;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -22,8 +22,8 @@ public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> e
     protected final @NotNull Inventory inv;
     private final ContainerLevelAccess access;
     private final ImmutableList<Block> validBlocks;
-    private final NonNullList<ItemReferenceSlot> itemReferenceSlots;
-    private final NonNullList<FluidReferenceSlot> fluidReferenceSlots;
+    private final NonNullList<SlotItemReferenceHandler> SlotItemReferenceHandlers;
+    private final NonNullList<SlotFluidReferenceHandler> SlotFluidReferenceHandlers;
 
     public @NotNull T getBlockEntity() {
         return blockEntity;
@@ -35,8 +35,8 @@ public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> e
         this.inv = inv;
         this.access = ContainerLevelAccess.create(inv.player.level(), blockEntity.getBlockPos());
         this.validBlocks = ImmutableList.copyOf(blockEntity.getType().getValidBlocks());
-        this.itemReferenceSlots = NonNullList.create();
-        this.fluidReferenceSlots = NonNullList.create();
+        this.SlotItemReferenceHandlers = NonNullList.create();
+        this.SlotFluidReferenceHandlers = NonNullList.create();
     }
 
     protected void addPlayerInventory(Inventory playerInventory) {
@@ -67,12 +67,12 @@ public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> e
         }
     }
 
-    protected void addItemReferenceSlot(ItemReferenceSlot slot) {
-        this.itemReferenceSlots.add(slot);
+    protected void addSlotItemReferenceHandler(SlotItemReferenceHandler slot) {
+        this.SlotItemReferenceHandlers.add(slot);
     }
 
-    protected void addFluidReferenceSlot(FluidReferenceSlot slot) {
-        this.fluidReferenceSlots.add(slot);
+    protected void addSlotFluidReferenceHandler(SlotFluidReferenceHandler slot) {
+        this.SlotFluidReferenceHandlers.add(slot);
     }
 
     @Override
@@ -210,11 +210,11 @@ public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> e
         return inv;
     }
 
-    public NonNullList<ItemReferenceSlot> getItemReferenceSlots() {
-        return itemReferenceSlots;
+    public NonNullList<SlotItemReferenceHandler> getSlotItemReferenceHandlers() {
+        return SlotItemReferenceHandlers;
     }
 
-    public NonNullList<FluidReferenceSlot> getFluidReferenceSlots() {
-        return fluidReferenceSlots;
+    public NonNullList<SlotFluidReferenceHandler> getSlotFluidReferenceHandlers() {
+        return SlotFluidReferenceHandlers;
     }
 }

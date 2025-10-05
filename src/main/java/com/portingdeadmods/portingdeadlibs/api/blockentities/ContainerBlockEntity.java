@@ -5,7 +5,14 @@ import com.portingdeadmods.portingdeadlibs.api.capabilities.DynamicFluidTank;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedEnergyStorage;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedFluidHandler;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedItemHandler;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.fluidref.FluidReferenceHandler;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.fluidref.IFluidReferenceHandler;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.fluidref.SidedFluidReferenceHandler;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.itemref.IItemReferenceHandler;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.itemref.ItemReferenceHandler;
+import com.portingdeadmods.portingdeadlibs.api.capabilities.itemref.SidedItemReferenceHandler;
 import com.portingdeadmods.portingdeadlibs.api.utils.IOAction;
+import com.portingdeadmods.portingdeadlibs.registries.PDLCapabilities;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -30,7 +37,6 @@ import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +52,8 @@ public abstract class ContainerBlockEntity extends BlockEntity {
     private @Nullable ItemStackHandler itemHandler;
     private @Nullable DynamicFluidTank fluidTank;
     private @Nullable EnergyStorage energyStorage;
+	private @Nullable ItemReferenceHandler itemReferenceHandler;
+	private @Nullable FluidReferenceHandler fluidReferenceHandler;
 
     public ContainerBlockEntity(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
         super(blockEntityType, blockPos, blockState);
@@ -66,6 +74,14 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         return energyStorage;
     }
 
+	public IItemReferenceHandler getItemReferenceHandler() {
+		return itemReferenceHandler;
+	}
+
+	public IFluidReferenceHandler getFluidReferenceHandler() {
+		return fluidReferenceHandler;
+	}
+
     protected ItemStackHandler getItemStackHandler() {
         return itemHandler;
     }
@@ -78,6 +94,14 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         return energyStorage;
     }
 
+	protected ItemReferenceHandler getItemReferenceHandlerImpl() {
+		return itemReferenceHandler;
+	}
+
+	protected FluidReferenceHandler getFluidReferenceHandlerImpl() {
+		return fluidReferenceHandler;
+	}
+
     @Override
     protected final void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
         super.loadAdditional(nbt, provider);
@@ -87,18 +111,26 @@ public abstract class ContainerBlockEntity extends BlockEntity {
             this.getItemStackHandler().deserializeNBT(provider, nbt.getCompound("itemhandler"));
         if (this.getEnergyStorageImpl() != null)
             this.getEnergyStorageImpl().deserializeNBT(provider, nbt.get("energy_storage"));
+		if (this.getItemReferenceHandlerImpl() != null)
+			this.getItemReferenceHandlerImpl().deserializeNBT(provider, nbt.getCompound("item_reference_handler"));
+		if (this.getFluidReferenceHandlerImpl() != null)
+			this.getFluidReferenceHandlerImpl().deserializeNBT(provider, nbt.getCompound("fluid_reference_handler"));
         loadData(nbt, provider);
     }
 
     @Override
     protected final void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider provider) {
-        super.saveAdditional(nbt, provider);
-        if (getFluidTank() != null)
-            nbt.put("fluid_tank", getFluidTank().serializeNBT(provider));
-        if (getItemStackHandler() != null)
-            nbt.put("itemhandler", getItemStackHandler().serializeNBT(provider));
-        if (getEnergyStorageImpl() != null)
-            nbt.put("energy_storage", getEnergyStorageImpl().serializeNBT(provider));
+	    super.saveAdditional(nbt, provider);
+	    if (getFluidTank() != null)
+		    nbt.put("fluid_tank", getFluidTank().serializeNBT(provider));
+	    if (getItemStackHandler() != null)
+		    nbt.put("itemhandler", getItemStackHandler().serializeNBT(provider));
+	    if (getEnergyStorageImpl() != null)
+		    nbt.put("energy_storage", getEnergyStorageImpl().serializeNBT(provider));
+	    if (getItemReferenceHandlerImpl() != null)
+		    nbt.put("item_reference_handler", getItemReferenceHandlerImpl().serializeNBT(provider));
+	    if (getFluidReferenceHandlerImpl() != null)
+		    nbt.put("fluid_reference_handler", getFluidReferenceHandlerImpl().serializeNBT(provider));
         saveData(nbt, provider);
     }
 
@@ -211,7 +243,7 @@ public abstract class ContainerBlockEntity extends BlockEntity {
             onItemsChanged(slot);
         }
 
-        return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : ItemStack.EMPTY;
+        return reachedLimit ? stack.copyWithCount(stack.getCount() - limit) : net.minecraft.world.item.ItemStack.EMPTY;
     }
 
     public ItemStack forceInsertItem(List<Integer> slots, ItemStack stack, boolean simulate) {
@@ -314,6 +346,29 @@ public abstract class ContainerBlockEntity extends BlockEntity {
             }
         };
     }
+
+	// TODO: Utils for v
+	protected final void addItemReferenceHandler(int slots) {
+		this.itemReferenceHandler = new ItemReferenceHandler(slots) {
+			@Override
+			protected void onContentsChanged() {
+				update();
+				invalidateCapabilities();
+			}
+		};
+	}
+
+	protected final void addFluidReferenceHandler(int slots) {
+		this.fluidReferenceHandler = new FluidReferenceHandler(slots) {
+			@Override
+			protected void onContentsChanged() {
+				update();
+				invalidateCapabilities();
+			}
+		};
+	}
+
+
 
     public void update() {
         setChanged();
@@ -433,6 +488,24 @@ public abstract class ContainerBlockEntity extends BlockEntity {
                 SidedEnergyStorage::new,
                 direction,
                 getEnergyStorage()
+        );
+    }
+
+    public IItemReferenceHandler getItemReferenceHandlerOnSide(Direction direction) {
+        return getHandlerOnSide(
+                PDLCapabilities.ItemReference.BLOCK,
+                SidedItemReferenceHandler::new,
+                direction,
+                getItemReferenceHandler()
+        );
+    }
+
+    public IFluidReferenceHandler getFluidReferenceHandlerOnSide(Direction direction) {
+        return getHandlerOnSide(
+                PDLCapabilities.FluidReference.BLOCK,
+                SidedFluidReferenceHandler::new,
+                direction,
+                getFluidReferenceHandler()
         );
     }
 

@@ -5,6 +5,7 @@ import com.portingdeadmods.portingdeadlibs.api.items.IEnergyItem;
 import com.portingdeadmods.portingdeadlibs.api.items.IFluidItem;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import com.portingdeadmods.portingdeadlibs.api.items.IItemItem;
+import com.portingdeadmods.portingdeadlibs.registries.PDLCapabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
@@ -39,6 +40,7 @@ public final class CapabilityRegistrationHelper {
 						(stack, ctx) -> new ComponentItemHandler(stack, DataComponents.CONTAINER, itemItem.getSlots()),
 						item.get());
 			}
+			// TODO: Do IReferenceItems
 		}
 	}
 
@@ -54,7 +56,18 @@ public final class CapabilityRegistrationHelper {
 				if (containerBE.getFluidHandler() != null) {
 					event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getFluidHandlerOnSide(dir));
 				}
-			}
+
+				if (containerBE.getEnergyStorage() != null) {
+					event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getEnergyStorageOnSide(dir));
+				}
+
+                if (containerBE.getItemReferenceHandler() != null) {
+                    event.registerBlockEntity(PDLCapabilities.ItemReference.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getItemReferenceHandlerOnSide(dir));
+                }
+
+                if (containerBE.getFluidReferenceHandler() != null) {
+                    event.registerBlockEntity(PDLCapabilities.FluidReference.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getFluidReferenceHandlerOnSide(dir));
+                }			}
 		}
 	}
 }
