@@ -23,10 +23,10 @@ public abstract class ItemDisplayParametersMixin {
                         || PortingDeadLibsClient.areTabsDirty();
 
         cir.setReturnValue(shouldUpdate);
+        cir.cancel();
 
         if (shouldUpdate) {
             PortingDeadLibsClient.markTabsClean();
         }
-        cir.cancel();
     }
 }
