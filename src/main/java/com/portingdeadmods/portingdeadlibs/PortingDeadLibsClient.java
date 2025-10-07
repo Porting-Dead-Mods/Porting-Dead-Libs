@@ -28,9 +28,15 @@ import org.joml.Vector4i;
 public final class PortingDeadLibsClient {
     public static final String MODID = "portingdeadlibs";
 
-    public static boolean shouldRefreshTabs = false;
+    private static boolean shouldRefreshTabs = false;
+    public static boolean areTabsDirty() {
+        return shouldRefreshTabs;
+    }
     public static void markTabsDirty() {
         shouldRefreshTabs = true;
+    }
+    public static void markTabsClean() {
+        shouldRefreshTabs = false;
     }
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {

@@ -20,9 +20,13 @@ public abstract class ItemDisplayParametersMixin {
                 !self.enabledFeatures().equals(enabledFeatures)
                         || self.hasPermissions() != hasPermissions
                         || self.holders() != holders
-                        || PortingDeadLibsClient.shouldRefreshTabs;
+                        || PortingDeadLibsClient.areTabsDirty();
 
         cir.setReturnValue(shouldUpdate);
+
+        if (shouldUpdate) {
+            PortingDeadLibsClient.markTabsClean();
+        }
         cir.cancel();
     }
 }
