@@ -28,6 +28,11 @@ import org.joml.Vector4i;
 public final class PortingDeadLibsClient {
     public static final String MODID = "portingdeadlibs";
 
+    public static boolean shouldRefreshTabs = false;
+    public static void markTabsDirty() {
+        shouldRefreshTabs = true;
+    }
+
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
     }

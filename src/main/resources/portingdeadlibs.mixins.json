@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.portingdeadmods.portingdeadlibs.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+  ],
+  "client": [
+    "ItemDisplayParametersMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
