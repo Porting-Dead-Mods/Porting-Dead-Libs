@@ -4,10 +4,12 @@ import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.portingdeadmods.portingdeadlibs.api.fluids.BaseFluidType;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor.ARGB32;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -28,15 +30,12 @@ import org.joml.Vector4i;
 public final class PortingDeadLibsClient {
     public static final String MODID = "portingdeadlibs";
 
-    private static boolean shouldRefreshTabs = false;
-    public static boolean areTabsDirty() {
-        return shouldRefreshTabs;
-    }
-    public static void markTabsDirty() {
-        shouldRefreshTabs = true;
-    }
-    public static void markTabsClean() {
-        shouldRefreshTabs = false;
+    public static void refreshCreativeTabContents() {
+        var mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            CreativeModeTabs.CACHED_PARAMETERS = null;
+            CreativeModeTabs.tryRebuildTabContents(mc.player.connection.enabledFeatures(), mc.player.canUseGameMasterBlocks() && mc.options.operatorItemsTab().get(), mc.level.registryAccess());
+        }
     }
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
