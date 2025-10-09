@@ -54,6 +54,10 @@ public final class CapabilityRegistrationHelper {
 				if (containerBE.getFluidHandler() != null) {
 					event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getFluidHandlerOnSide(dir));
 				}
+
+				if (containerBE.getEnergyStorage() != null) {
+					event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getEnergyStorageOnSide(dir));
+				}
 			}
 		}
 	}
