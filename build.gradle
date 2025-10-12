@@ -169,6 +169,6 @@ if (System.getenv('MODRINTH_TOKEN')) {
         additionalFiles = [sourcesJar, javadocJar]
         changelog = System.getenv('CHANGELOG') ?: 'See GitHub for changes'
         gameVersions = [minecraft_version]
-        loaders = ["NeoForge"]
+        loaders = ["neoforge"]
     }
 }

@@ -1,5 +1,6 @@
 package com.portingdeadmods.portingdeadlibs.api.ghost;
 
+import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
@@ -12,20 +13,25 @@ public class GhostMultiblockShape {
     private final AABB relativeBounds;
     private final Set<BlockPos> itemHandlerParts;
     private final Set<BlockPos> fluidHandlerParts;
-    private final Set<BlockPos> energyHandlerParts;
+    private final Set<BlockPos> energyStorageParts;
 
     public enum Exposes {
+        /** {@link ContainerBlockEntity#getItemHandler()} */
         ITEM_HANDLER,
+
+        /** {@link ContainerBlockEntity#getFluidHandler()} */
         FLUID_HANDLER,
-        ENERGY_HANDLER
+
+        /** {@link ContainerBlockEntity#getEnergyStorage()} */
+        ENERGY_STORAGE
     }
 
-    private GhostMultiblockShape(Set<BlockPos> partPositions, BlockPos controllerPosition, Set<BlockPos> itemHandlerParts, Set<BlockPos> fluidHandlerParts, Set<BlockPos> energyHandlerParts) {
+    private GhostMultiblockShape(Set<BlockPos> partPositions, BlockPos controllerPosition, Set<BlockPos> itemHandlerParts, Set<BlockPos> fluidHandlerParts, Set<BlockPos> energyStorageParts) {
         this.partPositions = partPositions;
         this.controllerPosition = controllerPosition;
         this.itemHandlerParts = itemHandlerParts;
         this.fluidHandlerParts = fluidHandlerParts;
-        this.energyHandlerParts = energyHandlerParts;
+        this.energyStorageParts = energyStorageParts;
         this.relativeBounds = calculateBounds();
     }
 
@@ -59,8 +65,8 @@ public class GhostMultiblockShape {
         return fluidHandlerParts;
     }
 
-    public Set<BlockPos> getEnergyHandlerParts() {
-        return energyHandlerParts;
+    public Set<BlockPos> getEnergyStorageParts() {
+        return energyStorageParts;
     }
 
     public GhostMultiblockShape getRotated(Direction direction) {
@@ -79,7 +85,7 @@ public class GhostMultiblockShape {
             rotatedFluidHandlerParts.add(rotatePos(pos, direction));
         }
         Set<BlockPos> rotatedEnergyHandlerParts = new HashSet<>();
-        for (BlockPos pos : this.energyHandlerParts) {
+        for (BlockPos pos : this.energyStorageParts) {
             rotatedEnergyHandlerParts.add(rotatePos(pos, direction));
         }
 
@@ -138,7 +144,7 @@ public class GhostMultiblockShape {
             BlockPos controllerPos = null;
             Set<BlockPos> itemHandlerParts = new HashSet<>();
             Set<BlockPos> fluidHandlerParts = new HashSet<>();
-            Set<BlockPos> energyHandlerParts = new HashSet<>();
+            Set<BlockPos> energyStorageParts = new HashSet<>();
 
             int y = 0;
             for (String[] layer : layers) {
@@ -165,8 +171,8 @@ public class GhostMultiblockShape {
                                 if (exposes.contains(Exposes.FLUID_HANDLER)) {
                                     fluidHandlerParts.add(currentPos);
                                 }
-                                if (exposes.contains(Exposes.ENERGY_HANDLER)) {
-                                    energyHandlerParts.add(currentPos);
+                                if (exposes.contains(Exposes.ENERGY_STORAGE)) {
+                                    energyStorageParts.add(currentPos);
                                 }
                             }
                         }
@@ -196,7 +202,7 @@ public class GhostMultiblockShape {
                 finalFluidHandlerParts.add(partPos.subtract(pivot));
             }
             Set<BlockPos> finalEnergyHandlerParts = new HashSet<>();
-            for (BlockPos partPos : energyHandlerParts) {
+            for (BlockPos partPos : energyStorageParts) {
                 finalEnergyHandlerParts.add(partPos.subtract(pivot));
             }
 

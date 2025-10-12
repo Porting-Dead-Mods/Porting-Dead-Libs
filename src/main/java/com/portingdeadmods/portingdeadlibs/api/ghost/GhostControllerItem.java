@@ -125,7 +125,7 @@ public abstract class GhostControllerItem extends BlockItem {
             List<BlockPos> fluidHandlerPartPositions = shape.getFluidHandlerParts().stream()
                 .map(origin::offset)
                 .collect(Collectors.toList());
-            List<BlockPos> energyHandlerPartPositions = shape.getEnergyHandlerParts().stream()
+            List<BlockPos> energyHandlerPartPositions = shape.getEnergyStorageParts().stream()
                 .map(origin::offset)
                 .collect(Collectors.toList());
             controllerBE.setPartPositions(partWorldPositions, itemHandlerPartPositions, fluidHandlerPartPositions, energyHandlerPartPositions);
