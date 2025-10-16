@@ -36,6 +36,24 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
         }
     }
 
+    public void setItemHandlerPartPos(List<BlockPos> itemHandlerPartPos) {
+        if (!this.itemHandlerPartPos.isInitialized()) {
+            this.itemHandlerPartPos.initialize(itemHandlerPartPos);
+        }
+    }
+
+    public void setFluidHandlerPartPos(List<BlockPos> fluidHandlerPartPos) {
+        if (!this.fluidHandlerPartPos.isInitialized()) {
+            this.fluidHandlerPartPos.initialize(fluidHandlerPartPos);
+        }
+    }
+
+    public void setEnergyHandlerPartPos(List<BlockPos> energyHandlerPartPos) {
+        if (!this.energyHandlerPartPos.isInitialized()) {
+            this.energyHandlerPartPos.initialize(energyHandlerPartPos);
+        }
+    }
+
     public void setPartPositions(List<BlockPos> partPositions, List<BlockPos> itemHandlerPartPos, List<BlockPos> fluidHandlerPartPos, List<BlockPos> energyHandlerPartPos) {
         setPartPositions(partPositions);
         if (!this.itemHandlerPartPos.isInitialized()) {
@@ -75,7 +93,7 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
             for (long posLong : partPositions) {
                 positions.add(BlockPos.of(posLong));
             }
-            this.itemHandlerPartPos.initialize(positions);
+            this.setItemHandlerPartPos(positions);
         }
         if (tag.contains("fluid_handler_part_positions")) {
             long[] partPositions = tag.getLongArray("fluid_handler_part_positions");
@@ -83,7 +101,7 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
             for (long posLong : partPositions) {
                 positions.add(BlockPos.of(posLong));
             }
-            this.fluidHandlerPartPos.initialize(positions);
+            this.setFluidHandlerPartPos(positions);
         }
         if (tag.contains("energy_handler_part_positions")) {
             long[] partPositions = tag.getLongArray("energy_handler_part_positions");
@@ -91,7 +109,7 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
             for (long posLong : partPositions) {
                 positions.add(BlockPos.of(posLong));
             }
-            this.energyHandlerPartPos.initialize(positions);
+            this.setEnergyHandlerPartPos(positions);
         }
     }
 
