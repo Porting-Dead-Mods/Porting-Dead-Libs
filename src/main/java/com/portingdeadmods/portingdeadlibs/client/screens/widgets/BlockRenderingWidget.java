@@ -1,4 +1,4 @@
-package com.portingdeadmods.portingdeadlibs.api.client.renderers.gui;
+package com.portingdeadmods.portingdeadlibs.client.screens.widgets;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
