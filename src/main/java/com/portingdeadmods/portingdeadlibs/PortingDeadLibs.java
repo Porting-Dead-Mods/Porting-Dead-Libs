@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
 import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
+import com.portingdeadmods.portingdeadlibs.example.ExampleRegistries;
+import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -24,6 +26,13 @@ public final class PortingDeadLibs {
         modEventBus.addListener(this::registerRegistries);
 
         PDLDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
+
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            ExampleRegistries.ITEMS.register(modEventBus);
+            ExampleRegistries.BLOCKS.register(modEventBus);
+            ExampleRegistries.BLOCK_ENTITIES.register(modEventBus);
+        }
+
     }
 
     public static ResourceLocation rl(String path) {

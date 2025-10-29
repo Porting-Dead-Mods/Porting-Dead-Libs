@@ -4,6 +4,7 @@ import com.portingdeadmods.portingdeadlibs.PDLRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.HashMap;
@@ -23,8 +24,12 @@ public class DeferredTranslationRegister extends DeferredRegister<TranslatableCo
         return new DeferredTranslationRegister(modid);
     }
 
-    public TranslationCategory createCategory(String category) {
-        return new TranslationCategory(this, category);
+    public DefaultTranslationCategory createCategory(String category) {
+        return new DefaultTranslationCategory(this, category);
+    }
+
+    public <E extends Enum<E> & StringRepresentable> EnumTranslationCategory<E> createEnumCategory(String category) {
+        return new EnumTranslationCategory<>(this, category);
     }
 
     public Map<String, String> getDefaultTranslations() {

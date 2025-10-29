@@ -1,5 +1,6 @@
 package com.portingdeadmods.portingdeadlibs.utils.metrics;
 
+import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -60,7 +61,7 @@ public class Profiler {
         }
     }
 
-    @EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME)
+    @EventBusSubscriber(modid = PortingDeadLibs.MODID)
     public static class ProfilerCommands {
         @SubscribeEvent
         public static void register(RegisterCommandsEvent event) {
@@ -74,7 +75,7 @@ public class Profiler {
         }
     }
 
-    @EventBusSubscriber(bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = PortingDeadLibs.MODID, value = Dist.CLIENT)
     public static class ClientEvents {
         @SubscribeEvent
         public static void onRender(RenderGuiEvent.Post event) {

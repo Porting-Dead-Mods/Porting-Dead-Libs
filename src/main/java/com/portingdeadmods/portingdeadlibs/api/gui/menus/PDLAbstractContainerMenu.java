@@ -25,10 +25,6 @@ public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> e
     private final NonNullList<ItemReferenceSlot> itemReferenceSlots;
     private final NonNullList<FluidReferenceSlot> fluidReferenceSlots;
 
-    public @NotNull T getBlockEntity() {
-        return blockEntity;
-    }
-
     public PDLAbstractContainerMenu(MenuType<?> menuType, int containerId, @NotNull Inventory inv, @NotNull T blockEntity) {
         super(menuType, containerId);
         this.blockEntity = blockEntity;
@@ -37,6 +33,10 @@ public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> e
         this.validBlocks = ImmutableList.copyOf(blockEntity.getType().getValidBlocks());
         this.itemReferenceSlots = NonNullList.create();
         this.fluidReferenceSlots = NonNullList.create();
+    }
+
+    public @NotNull T getBlockEntity() {
+        return blockEntity;
     }
 
     protected void addPlayerInventory(Inventory playerInventory) {
