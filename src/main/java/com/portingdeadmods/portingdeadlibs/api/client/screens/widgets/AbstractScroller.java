@@ -120,6 +120,7 @@ public abstract class AbstractScroller extends AbstractWidget {
             );
         }
 
+		flag = (flag && (this.getContentLength() >= this.getVisibleContentLength()));
         if (flag) mbDown = true;
         updatePos(mouseX, mouseY);
         return flag;
