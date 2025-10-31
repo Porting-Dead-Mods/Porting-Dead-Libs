@@ -1,6 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.utils.capabilities;
 
 import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
+import com.portingdeadmods.portingdeadlibs.api.ghost.SimpleGhostMultiblockPartBE;
 import com.portingdeadmods.portingdeadlibs.api.items.IEnergyItem;
 import com.portingdeadmods.portingdeadlibs.api.items.IFluidItem;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
@@ -58,6 +59,11 @@ public final class CapabilityRegistrationHelper {
 				if (containerBE.getEnergyStorage() != null) {
 					event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, be.get(), (blockEntity, dir) -> ((ContainerBlockEntity) blockEntity).getEnergyStorageOnSide(dir));
 				}
+			}
+			if (testBE instanceof SimpleGhostMultiblockPartBE partBE) {
+				event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, be.get(), (blockEntity, dir) -> ((SimpleGhostMultiblockPartBE) blockEntity).tryAndGetCapability(Capabilities.ItemHandler.BLOCK));
+				event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, be.get(), (blockEntity, dir) -> ((SimpleGhostMultiblockPartBE) blockEntity).tryAndGetCapability(Capabilities.FluidHandler.BLOCK));
+				event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, be.get(), (blockEntity, dir) -> ((SimpleGhostMultiblockPartBE) blockEntity).tryAndGetCapability(Capabilities.EnergyStorage.BLOCK));
 			}
 		}
 	}
