@@ -29,8 +29,9 @@ public abstract class SimpleGhostMultiblockPart extends BaseEntityBlock implemen
 
         if (level.getBlockEntity(pos) instanceof GhostMultiblockPartBE partBE) {
             BlockEntity controllerBE = level.getBlockEntity(partBE.getControllerPos());
-            if (controllerBE instanceof GhostMultiblockControllerBE && player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.openMenu((GhostMultiblockControllerBE) controllerBE, partBE.getControllerPos());
+            if (controllerBE instanceof GhostMultiblockControllerBE controller && player instanceof ServerPlayer serverPlayer) {
+                controller.prepareMenu(pos);
+                serverPlayer.openMenu(controller, partBE.getControllerPos());
                 return InteractionResult.CONSUME;
             }
         }

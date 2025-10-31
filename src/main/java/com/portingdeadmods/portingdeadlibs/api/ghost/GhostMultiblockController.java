@@ -13,8 +13,8 @@ public abstract class GhostMultiblockController extends ContainerBlock {
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
         if (level.getBlockEntity(pos) instanceof GhostMultiblockControllerBE controllerBE) {
-            if (controllerBE.partPos.isInitialized()) {
-                controllerBE.partPos.getOrThrow().forEach(partPos -> {
+            if (!controllerBE.partPositions.isEmpty()) {
+                controllerBE.partPositions.forEach(partPos -> {
                     if (level.getBlockEntity(partPos) instanceof SimpleGhostMultiblockPartBE) {
                         level.removeBlock(partPos, false);
                     }

@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.Level;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,6 +16,8 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Declared abstract due to the BlockEntityType not being registered.
@@ -54,33 +56,33 @@ public abstract class SimpleGhostMultiblockPartBE extends BlockEntity implements
     }
 
     @Nullable
-    public <T> T getControllerCapability(BlockCapability<T, @Nullable Direction> capability) {
-        Level level = getLevel();
-        if (level == null || !this.controllerPos.isInitialized()) {
-            return null;
-        }
-
-        BlockEntity be = level.getBlockEntity(getControllerPos());
-        if (be instanceof GhostMultiblockControllerBE controller) {
-            if (controller.shouldExposeCapability(capability, this.getBlockPos())) {
-                return level.getCapability(capability, getControllerPos(), null);
-            }
-        }
-        return null;
+    public <T> T tryAndGetCapability(BlockCapability<T, @Nullable Direction> capability) {
+        if (this.level != null) {
+			if (this.controllerPos.isInitialized()) {
+				BlockEntity be = this.level.getBlockEntity(controllerPos.getOrThrow());
+				if (be instanceof GhostMultiblockControllerBE controllerBE) {
+					Optional<ResourceLocation> optional = controllerBE.getExposedHandlers().get(this.getBlockPos()).stream().filter(a -> a.equals(capability.name())).findFirst();
+					if (optional.isPresent()) {
+						return controllerBE.getHandler(optional.get());
+					}
+				}
+			}
+		}
+		return null;
     }
 
     @Nullable
     public IItemHandler getControllerItemHandler() {
-        return getControllerCapability(Capabilities.ItemHandler.BLOCK);
+        return tryAndGetCapability(Capabilities.ItemHandler.BLOCK);
     }
 
     @Nullable
     public IFluidHandler getControllerFluidHandler() {
-        return getControllerCapability(Capabilities.FluidHandler.BLOCK);
+        return tryAndGetCapability(Capabilities.FluidHandler.BLOCK);
     }
 
     @Nullable
     public IEnergyStorage getControllerEnergyStorage() {
-        return getControllerCapability(Capabilities.EnergyStorage.BLOCK);
+        return tryAndGetCapability(Capabilities.EnergyStorage.BLOCK);
     }
 }
