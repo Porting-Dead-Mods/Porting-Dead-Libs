@@ -27,6 +27,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +52,8 @@ public final class PortingDeadLibsClient {
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
-		modEventBus.addListener(this::renderOutline);
+
+	    NeoForge.EVENT_BUS.addListener(this::renderOutline);
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {
