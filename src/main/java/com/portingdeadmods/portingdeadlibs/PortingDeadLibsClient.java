@@ -3,17 +3,28 @@ package com.portingdeadmods.portingdeadlibs;
 import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.portingdeadmods.portingdeadlibs.api.fluids.BaseFluidType;
+import com.portingdeadmods.portingdeadlibs.api.ghost.GhostMultiblockController;
+import com.portingdeadmods.portingdeadlibs.api.ghost.GhostMultiblockPart;
+import com.portingdeadmods.portingdeadlibs.client.PDLRenderTypes;
+import com.portingdeadmods.portingdeadlibs.mixins.LevelRendererMixin;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor.ARGB32;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -40,6 +51,7 @@ public final class PortingDeadLibsClient {
 
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
+		modEventBus.addListener(this::renderOutline);
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {
@@ -76,4 +88,22 @@ public final class PortingDeadLibsClient {
             }
         }
     }
+
+	public void renderOutline(RenderHighlightEvent.Block event) {
+		if (event.getCamera().getEntity() instanceof LivingEntity living) {
+			Level world = living.level();
+			BlockHitResult rtr = event.getTarget();
+			BlockPos pos = rtr.getBlockPos();
+			Vec3 renderView = event.getCamera().getPosition();
+			BlockState targetBlock = world.getBlockState(rtr.getBlockPos());
+			if (targetBlock.getBlock() instanceof GhostMultiblockController || targetBlock.getBlock() instanceof GhostMultiblockPart) {
+				((LevelRendererMixin) event.getLevelRenderer()).callRenderHitOutline(
+						event.getPoseStack(), event.getMultiBufferSource().getBuffer(PDLRenderTypes.LINES_NONTRANSLUCENT),
+						living, renderView.x, renderView.y, renderView.z,
+						pos, targetBlock
+				);
+				event.setCanceled(true);
+			}
+		}
+	}
 }
