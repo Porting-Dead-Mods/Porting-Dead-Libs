@@ -5,7 +5,6 @@ import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedEnergyStorage;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedFluidHandler;
 import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedItemHandler;
 import com.portingdeadmods.portingdeadlibs.api.utils.IOAction;
-import com.portingdeadmods.portingdeadlibs.utils.capabilities.HandlerUtils;
 import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -39,8 +38,14 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.function.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public abstract class ContainerBlockEntity extends BlockEntity {
     private final Map<ResourceLocation, Object> handlers;
@@ -456,6 +461,10 @@ public abstract class ContainerBlockEntity extends BlockEntity {
 
         @Override
         public IItemHandler build() {
+			if (this.validator == null) this.validator = (a, b) -> true;
+			if (this.slotLimitFunction == null) this.slotLimitFunction = (a) -> 64;
+			if (this.onChange == null) this.onChange = $ -> {};
+
             IItemHandler itemHandler = this.factory.create(this.validator, this.slotLimitFunction, this.onChange, this.slots);
             if (itemHandler instanceof INBTSerializable<?> serializable && this.serializer == null) {
                 this.serializer = serializable;
@@ -487,6 +496,10 @@ public abstract class ContainerBlockEntity extends BlockEntity {
 
         @Override
         public IFluidHandler build() {
+	        if (this.validator == null) this.validator = (a, b) -> true;
+	        if (this.slotLimitFunction == null) this.slotLimitFunction = (a) -> 64;
+	        if (this.onChange == null) this.onChange = $ -> {};
+
             IFluidHandler fluidHandler = this.factory.create(this.validator, this.slotLimitFunction, this.onChange, this.slots);
             if (fluidHandler instanceof INBTSerializable<?> serializable && this.serializer == null) {
                 this.serializer = serializable;
@@ -539,6 +552,8 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         }
 
         public IEnergyStorage build() {
+	        if (this.onChange == null) this.onChange = () -> {};
+
             IEnergyStorage energyStorage = this.factory.create(this.capacity, this.maxReceive, this.maxExtract, this.onChange);
             if (energyStorage instanceof INBTSerializable<?> serializable && this.serializer == null) {
                 this.serializer = serializable;
