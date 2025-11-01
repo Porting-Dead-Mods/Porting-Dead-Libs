@@ -17,6 +17,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -61,7 +62,10 @@ public abstract class SimpleGhostMultiblockPartBE extends BlockEntity implements
 			if (this.controllerPos.isInitialized()) {
 				BlockEntity be = this.level.getBlockEntity(controllerPos.getOrThrow());
 				if (be instanceof GhostMultiblockControllerBE controllerBE) {
-					Optional<ResourceLocation> optional = controllerBE.getExposedHandlers().get(this.getBlockPos()).stream().filter(a -> a.equals(capability.name())).findFirst();
+					List<ResourceLocation> caps = controllerBE.getExposedHandlers().get(this.getBlockPos());
+					if (caps == null) return null;
+
+					Optional<ResourceLocation> optional = caps.stream().filter(a -> a.equals(capability.name())).findFirst();
 					if (optional.isPresent()) {
 						return controllerBE.getHandler(optional.get());
 					}
