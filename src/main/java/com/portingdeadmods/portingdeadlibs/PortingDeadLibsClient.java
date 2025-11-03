@@ -30,14 +30,6 @@ import org.joml.Vector4i;
 public final class PortingDeadLibsClient {
     public static final String MODID = "portingdeadlibs";
 
-    public static void refreshCreativeTabContents() {
-        var mc = Minecraft.getInstance();
-        if (mc.player != null) {
-            CreativeModeTabs.CACHED_PARAMETERS = null;
-            CreativeModeTabs.tryRebuildTabContents(mc.player.connection.enabledFeatures(), mc.player.canUseGameMasterBlocks() && mc.options.operatorItemsTab().get(), mc.level.registryAccess());
-        }
-    }
-
     public PortingDeadLibsClient(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::registerClientExtensions);
     }

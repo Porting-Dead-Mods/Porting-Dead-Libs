@@ -70,26 +70,6 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         this.handlerSerializers.put(key, (Function<Object, INBTSerializable<?>>) serializerFactory);
     }
 
-    public <C> C getHandler(ResourceLocation key) {
-        return (C) this.handlers.get(key);
-    }
-
-    public <C> C getHandler(BlockCapability<C, Direction> capability) {
-        return (C) this.handlers.get(capability.name());
-    }
-
-    public IItemHandler getItemHandler() {
-        return this.getHandler(Capabilities.ItemHandler.BLOCK);
-    }
-
-    public IFluidHandler getFluidHandler() {
-        return this.getHandler(Capabilities.FluidHandler.BLOCK);
-    }
-
-    public IEnergyStorage getEnergyStorage() {
-        return this.getHandler(Capabilities.EnergyStorage.BLOCK);
-    }
-
     protected void addItemHandler(HandlerFactory<IItemHandler, ItemStack> factory, UnaryOperator<ItemHandlerBuilder> builder) {
         ItemHandlerBuilder builder1 = builder.apply(new ItemHandlerBuilder(factory));
         if (builder1.serializer != null) {
@@ -115,6 +95,26 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         } else {
             this.addHandler(Capabilities.EnergyStorage.BLOCK, builder1.build());
         }
+    }
+
+    public <C> C getHandler(ResourceLocation key) {
+        return (C) this.handlers.get(key);
+    }
+
+    public <C> C getHandler(BlockCapability<C, Direction> capability) {
+        return (C) this.handlers.get(capability.name());
+    }
+
+    public IItemHandler getItemHandler() {
+        return this.getHandler(Capabilities.ItemHandler.BLOCK);
+    }
+
+    public IFluidHandler getFluidHandler() {
+        return this.getHandler(Capabilities.FluidHandler.BLOCK);
+    }
+
+    public IEnergyStorage getEnergyStorage() {
+        return this.getHandler(Capabilities.EnergyStorage.BLOCK);
     }
 
     public void tick() {
@@ -307,26 +307,18 @@ public abstract class ContainerBlockEntity extends BlockEntity {
     }
 
     public @Nullable ItemStack[] getItemHandlerStacks(IItemHandler handler) {
-        IItemHandler itemStackHandler = getItemHandler();
-
-        if (itemStackHandler == null) return null;
-
-        ItemStack[] itemStacks = new ItemStack[itemStackHandler.getSlots()];
-        for (int i = 0; i < itemStackHandler.getSlots(); i++) {
-            itemStacks[i] = itemStackHandler.getStackInSlot(i);
+        ItemStack[] itemStacks = new ItemStack[handler.getSlots()];
+        for (int i = 0; i < handler.getSlots(); i++) {
+            itemStacks[i] = handler.getStackInSlot(i);
         }
         return itemStacks;
     }
 
-    public List<ItemStack> getItemHandlerStacksList() {
-        IItemHandler itemStackHandler = getItemHandler();
-
-        if (itemStackHandler == null) return null;
-
-        int slots = itemStackHandler.getSlots();
+    public List<ItemStack> getItemHandlerStacksList(IItemHandler handler) {
+        int slots = handler.getSlots();
         ObjectList<ItemStack> itemStacks = new ObjectArrayList<>(slots);
         for (int i = 0; i < slots; i++) {
-            ItemStack stack = itemStackHandler.getStackInSlot(i);
+            ItemStack stack = handler.getStackInSlot(i);
             if (!stack.isEmpty()) {
                 itemStacks.add(stack);
             }
@@ -334,82 +326,24 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         return itemStacks;
     }
 
-    public <T> T getHandlerOnSide(BlockCapability<T, @Nullable Direction> capability, SidedHandlerSupplier<T> handlerSupplier, Direction direction, T baseHandler) {
-        if (direction == null) {
-            return baseHandler;
-        }
-
-        Map<Direction, Pair<IOAction, int[]>> ioPorts = getSidedInteractions(capability);
-        if (ioPorts.containsKey(direction)) {
-
-            if (direction == Direction.UP || direction == Direction.DOWN) {
-                return handlerSupplier.get(baseHandler, ioPorts.get(direction));
-            }
-
-            if (this.getBlockState().hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                Direction localDir = this.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
-
-                return getCapOnSide(handlerSupplier, direction, baseHandler, ioPorts, localDir);
-            }
-
-            if (getBlockState().hasProperty(BlockStateProperties.FACING)) {
-                Direction localDir = this.getBlockState().getValue(BlockStateProperties.FACING);
-
-                return getCapOnSide(handlerSupplier, direction, baseHandler, ioPorts, localDir);
-            }
-
-            PortingDeadLibs.LOGGER.warn("Sided io for non facing block");
-        }
-
-        return null;
+    public <H> H getHandler(ResourceLocation capability, Direction direction) {
+        return this.getHandler(capability);
     }
 
-    @Nullable
-    private <T> T getCapOnSide(SidedHandlerSupplier<T> handlerSupplier, Direction direction, T baseHandler, Map<Direction, Pair<IOAction, int[]>> ioPorts, Direction localDir) {
-        return switch (localDir) {
-            case NORTH -> handlerSupplier.get(baseHandler, ioPorts.get(direction.getOpposite()));
-            case EAST -> handlerSupplier.get(baseHandler, ioPorts.get(direction.getClockWise()));
-            case SOUTH -> handlerSupplier.get(baseHandler, ioPorts.get(direction));
-            case WEST -> handlerSupplier.get(baseHandler, ioPorts.get(direction.getCounterClockWise()));
-            default -> null;
-        };
+    public <H> H getHandler(BlockCapability<H, Direction> capability, Direction direction) {
+        return this.getHandler(capability);
     }
 
     public IItemHandler getItemHandlerOnSide(Direction direction) {
-        return getHandlerOnSide(
-                Capabilities.ItemHandler.BLOCK,
-                SidedItemHandler::new,
-                direction,
-                getItemHandler()
-        );
+        return this.getItemHandler();
     }
 
     public IFluidHandler getFluidHandlerOnSide(Direction direction) {
-        return getHandlerOnSide(
-                Capabilities.FluidHandler.BLOCK,
-                SidedFluidHandler::new,
-                direction,
-                getFluidHandler()
-        );
+        return this.getFluidHandler();
     }
 
     public IEnergyStorage getEnergyStorageOnSide(Direction direction) {
-        return getHandlerOnSide(
-                Capabilities.EnergyStorage.BLOCK,
-                SidedEnergyStorage::new,
-                direction,
-                getEnergyStorage()
-        );
-    }
-
-    /**
-     * Get the input/output config for the blockenitity.
-     * If directions are not defined in the map, they are assumed to be {@link IOAction#NONE} and do not affect any slot.
-     *
-     * @return Map of directions that each map to a pair that defines the IOAction as well as the tanks that are affected. Return an empty map if you do not have an itemhandler
-     */
-    public <T> Map<Direction, Pair<IOAction, int[]>> getSidedInteractions(BlockCapability<T, @Nullable Direction> capability) {
-        return null;
+        return this.getEnergyStorage();
     }
 
     @Nullable
@@ -420,17 +354,7 @@ public abstract class ContainerBlockEntity extends BlockEntity {
 
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        return saveWithoutMetadata(provider);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        super.onDataPacket(net, pkt, lookupProvider);
-    }
-
-    @FunctionalInterface
-    public interface SidedHandlerSupplier<T> {
-        T get(T handler, Pair<IOAction, int[]> supportedActions);
+        return this.saveWithoutMetadata(provider);
     }
 
     public static class ItemHandlerBuilder extends HandlerBuilder<ItemStack, IItemHandler, ItemHandlerBuilder> {
