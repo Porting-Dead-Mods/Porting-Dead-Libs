@@ -3,7 +3,10 @@ package com.portingdeadmods.portingdeadlibs.api.ghost;
 import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -11,9 +14,13 @@ public class GhostMultiblockShape {
     private final Set<BlockPos> partPositions; // Relative to origin (0,0,0)
     private final BlockPos controllerPosition; // Relative to origin (0,0,0)
     private final AABB relativeBounds;
-    private final Set<BlockPos> itemHandlerParts;
-    private final Set<BlockPos> fluidHandlerParts;
-    private final Set<BlockPos> energyStorageParts;
+    private final Map<BlockPos, List<ResourceLocation>> handlerExposure;
+    private final Map<BlockPos, GhostPartMenuFactory> partMenus;
+    private final BlockPos placementOffset;
+
+    private static final ResourceLocation ITEM_HANDLER_KEY = Capabilities.ItemHandler.BLOCK.name();
+    private static final ResourceLocation FLUID_HANDLER_KEY = Capabilities.FluidHandler.BLOCK.name();
+    private static final ResourceLocation ENERGY_HANDLER_KEY = Capabilities.EnergyStorage.BLOCK.name();
 
     public enum Exposes {
         /** {@link ContainerBlockEntity#getItemHandler()} */
@@ -26,12 +33,16 @@ public class GhostMultiblockShape {
         ENERGY_STORAGE
     }
 
-    private GhostMultiblockShape(Set<BlockPos> partPositions, BlockPos controllerPosition, Set<BlockPos> itemHandlerParts, Set<BlockPos> fluidHandlerParts, Set<BlockPos> energyStorageParts) {
+    private GhostMultiblockShape(Set<BlockPos> partPositions,
+                                 BlockPos controllerPosition,
+                                 Map<BlockPos, List<ResourceLocation>> handlerExposure,
+                                 Map<BlockPos, GhostPartMenuFactory> partMenus,
+                                 BlockPos placementOffset) {
         this.partPositions = partPositions;
         this.controllerPosition = controllerPosition;
-        this.itemHandlerParts = itemHandlerParts;
-        this.fluidHandlerParts = fluidHandlerParts;
-        this.energyStorageParts = energyStorageParts;
+        this.handlerExposure = handlerExposure;
+        this.partMenus = partMenus;
+        this.placementOffset = placementOffset;
         this.relativeBounds = calculateBounds();
     }
 
@@ -57,16 +68,16 @@ public class GhostMultiblockShape {
         return relativeBounds;
     }
 
-    public Set<BlockPos> getItemHandlerParts() {
-        return itemHandlerParts;
+    public Map<BlockPos, List<ResourceLocation>> getHandlerExposure() {
+        return handlerExposure;
     }
 
-    public Set<BlockPos> getFluidHandlerParts() {
-        return fluidHandlerParts;
+    public Map<BlockPos, GhostPartMenuFactory> getPartMenus() {
+        return partMenus;
     }
 
-    public Set<BlockPos> getEnergyStorageParts() {
-        return energyStorageParts;
+    public BlockPos getPlacementOffset() {
+        return placementOffset;
     }
 
     public GhostMultiblockShape getRotated(Direction direction) {
@@ -75,21 +86,23 @@ public class GhostMultiblockShape {
             rotatedPartPositions.add(rotatePos(pos, direction));
         }
         BlockPos rotatedControllerPos = this.controllerPosition != null ? rotatePos(this.controllerPosition, direction) : null;
+        Map<BlockPos, List<ResourceLocation>> rotatedExposure = new HashMap<>();
+        for (Map.Entry<BlockPos, List<ResourceLocation>> entry : this.handlerExposure.entrySet()) {
+            rotatedExposure.put(rotatePos(entry.getKey(), direction), entry.getValue());
+        }
+        Map<BlockPos, GhostPartMenuFactory> rotatedMenus = new HashMap<>();
+        for (Map.Entry<BlockPos, GhostPartMenuFactory> entry : this.partMenus.entrySet()) {
+            rotatedMenus.put(rotatePos(entry.getKey(), direction), entry.getValue());
+        }
+        BlockPos rotatedPlacementOffset = rotatePos(this.placementOffset, direction);
 
-        Set<BlockPos> rotatedItemHandlerParts = new HashSet<>();
-        for (BlockPos pos : this.itemHandlerParts) {
-            rotatedItemHandlerParts.add(rotatePos(pos, direction));
-        }
-        Set<BlockPos> rotatedFluidHandlerParts = new HashSet<>();
-        for (BlockPos pos : this.fluidHandlerParts) {
-            rotatedFluidHandlerParts.add(rotatePos(pos, direction));
-        }
-        Set<BlockPos> rotatedEnergyHandlerParts = new HashSet<>();
-        for (BlockPos pos : this.energyStorageParts) {
-            rotatedEnergyHandlerParts.add(rotatePos(pos, direction));
-        }
-
-        return new GhostMultiblockShape(rotatedPartPositions, rotatedControllerPos, rotatedItemHandlerParts, rotatedFluidHandlerParts, rotatedEnergyHandlerParts);
+        return new GhostMultiblockShape(
+                rotatedPartPositions,
+                rotatedControllerPos,
+                Collections.unmodifiableMap(rotatedExposure),
+                Collections.unmodifiableMap(rotatedMenus),
+                rotatedPlacementOffset
+        );
     }
 
     private static BlockPos rotatePos(BlockPos pos, Direction direction) {
@@ -108,9 +121,21 @@ public class GhostMultiblockShape {
     public static class Builder {
         private final List<String[]> layers = new ArrayList<>();
         private char controllerChar = 'C';
-        private BlockPos pivot = BlockPos.ZERO;
-        private final Map<Character, Set<Exposes>> whereMap = new HashMap<>();
+        private final Map<Character, List<ResourceLocation>> explicitHandlerMap = new HashMap<>();
+        private final Map<Character, GhostPartMenuFactory> menuFactories = new HashMap<>();
+        private final Set<Character> noMenuChars = new HashSet<>();
+        private BlockPos placementOffset = BlockPos.ZERO;
 
+	    /**
+	     * The multiblock definition itself. <br> <br>
+	     * A {@code layer} call defines a single multiblock layer by continuous string params of the same length <br> <br>
+	     * Eg.
+	     * {@code layer(
+	     *  "AAAAA",
+	     *  "AAAAA",
+	     *  "AACAA",
+	     * )}
+	     */
         public Builder layer(String... aisle) {
             if (aisle.length > 0) {
                 int width = aisle[0].length();
@@ -124,32 +149,69 @@ public class GhostMultiblockShape {
             return this;
         }
 
+	    /**
+	     * Define the character for the controller position <br>
+	     * At most there can be only one controller
+	     * @param c Character used in the Layer
+	     */
         public Builder controllerChar(char c) {
             this.controllerChar = c;
             return this;
         }
 
-        public Builder pivot(int x, int y, int z) {
-            this.pivot = new BlockPos(x, y, z);
+	    /**
+	     * It's recommended to only expose AT MOST 1 handler per type
+	     * @param c Character used in the Layer
+	     * @param handlers Resource Location of the handler as defined in {@link ContainerBlockEntity#handlers}
+	     */
+        public Builder exposeHandlers(char c, ResourceLocation... handlers) {
+            explicitHandlerMap.computeIfAbsent(c, k -> new ArrayList<>()).addAll(Arrays.asList(handlers));
             return this;
         }
 
-        public Builder where(char c, Exposes... exposes) {
-            whereMap.computeIfAbsent(c, k -> new HashSet<>()).addAll(Arrays.asList(exposes));
+	    /**
+	     * Lets you open custom menus per block instead of a centralised controller BE menu
+	     * @param c Character used in the Layer
+	     * @param factory Lambda following {@link GhostPartMenuFactory}
+	     */
+        public Builder withMenu(char c, @Nullable GhostPartMenuFactory factory) {
+            if (factory == null) {
+                noMenuChars.add(c);
+                menuFactories.remove(c);
+            } else {
+                menuFactories.put(c, factory);
+                noMenuChars.remove(c);
+            }
+            return this;
+        }
+
+	    /**
+	     * Taking the controller as an anchor, add an offset for placing following the idea that North is forward. <br> <br>
+	     * It is generally recommended to offset the multiblock in such way that placing it is centered and all of the blocks are in the back of the place position.
+	     * @param x offset
+	     * @param y offset
+	     * @param z offset
+	     */
+        public Builder onPlaceOffset(int x, int y, int z) {
+            this.placementOffset = new BlockPos(x, y, z);
             return this;
         }
 
         public GhostMultiblockShape build() {
             Set<BlockPos> partPositions = new HashSet<>();
             BlockPos controllerPos = null;
-            Set<BlockPos> itemHandlerParts = new HashSet<>();
-            Set<BlockPos> fluidHandlerParts = new HashSet<>();
-            Set<BlockPos> energyStorageParts = new HashSet<>();
+            Map<BlockPos, List<ResourceLocation>> handlerExposure = new HashMap<>();
+            Map<BlockPos, GhostPartMenuFactory> partMenus = new HashMap<>();
 
+			// Height
             int y = 0;
             for (String[] layer : layers) {
+
+				// Length
                 int z = 0;
                 for (String aisle : layer) {
+
+					// Width
                     int x = 0;
                     for (char c : aisle.toCharArray()) {
                         if (c != ' ') {
@@ -163,17 +225,19 @@ public class GhostMultiblockShape {
                                 partPositions.add(currentPos);
                             }
 
-                            if (whereMap.containsKey(c)) {
-                                Set<Exposes> exposes = whereMap.get(c);
-                                if (exposes.contains(Exposes.ITEM_HANDLER)) {
-                                    itemHandlerParts.add(currentPos);
-                                }
-                                if (exposes.contains(Exposes.FLUID_HANDLER)) {
-                                    fluidHandlerParts.add(currentPos);
-                                }
-                                if (exposes.contains(Exposes.ENERGY_STORAGE)) {
-                                    energyStorageParts.add(currentPos);
-                                }
+                            List<ResourceLocation> handlerKeys = new ArrayList<>();
+                            if (explicitHandlerMap.containsKey(c)) {
+                                handlerKeys.addAll(explicitHandlerMap.get(c));
+                            }
+                            if (!handlerKeys.isEmpty()) {
+                                List<ResourceLocation> deduped = List.copyOf(new LinkedHashSet<>(handlerKeys));
+                                handlerExposure.put(currentPos, deduped);
+                            }
+
+                            if (noMenuChars.contains(c)) {
+                                partMenus.put(currentPos, null);
+                            } else if (menuFactories.containsKey(c)) {
+                                partMenus.put(currentPos, menuFactories.get(c));
                             }
                         }
                         x++;
@@ -187,26 +251,14 @@ public class GhostMultiblockShape {
                 throw new IllegalStateException("No controller defined in the shape.");
             }
 
-            // Normalize positions relative to the pivot
-            BlockPos finalControllerPos = controllerPos.subtract(pivot);
-            Set<BlockPos> finalPartPositions = new HashSet<>();
-            for (BlockPos partPos : partPositions) {
-                finalPartPositions.add(partPos.subtract(pivot));
-            }
-            Set<BlockPos> finalItemHandlerParts = new HashSet<>();
-            for (BlockPos partPos : itemHandlerParts) {
-                finalItemHandlerParts.add(partPos.subtract(pivot));
-            }
-            Set<BlockPos> finalFluidHandlerParts = new HashSet<>();
-            for (BlockPos partPos : fluidHandlerParts) {
-                finalFluidHandlerParts.add(partPos.subtract(pivot));
-            }
-            Set<BlockPos> finalEnergyHandlerParts = new HashSet<>();
-            for (BlockPos partPos : energyStorageParts) {
-                finalEnergyHandlerParts.add(partPos.subtract(pivot));
-            }
 
-            return new GhostMultiblockShape(finalPartPositions, finalControllerPos, finalItemHandlerParts, finalFluidHandlerParts, finalEnergyHandlerParts);
+            return new GhostMultiblockShape(
+                    partPositions,
+                    controllerPos,
+                    handlerExposure,
+                    partMenus,
+                    placementOffset
+            );
         }
     }
 }

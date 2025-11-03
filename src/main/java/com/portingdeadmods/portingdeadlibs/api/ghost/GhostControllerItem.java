@@ -1,7 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.api.ghost;
 
-import com.portingdeadmods.portingdeadlibs.utils.AABBUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -12,13 +12,14 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class GhostControllerItem extends BlockItem {
-
     public GhostControllerItem(Block controllerBlock, Properties properties) {
         super(controllerBlock, properties);
     }
@@ -54,7 +55,8 @@ public abstract class GhostControllerItem extends BlockItem {
      */
     @NotNull
     protected BlockPos getOrigin(@NotNull BlockPlaceContext context) {
-        return context.getClickedPos().subtract(getShape(context).getControllerPosition());
+        GhostMultiblockShape shape = getShape(context);
+        return context.getClickedPos().offset(shape.getPlacementOffset()).subtract(shape.getControllerPosition());
     }
 
     /**
@@ -64,20 +66,29 @@ public abstract class GhostControllerItem extends BlockItem {
      */
     @NotNull
     protected AABB getMultiblockBounds(@NotNull BlockPlaceContext context) {
-        return getShape(context).getRelativeBounds().move(getOrigin(context));
+        GhostMultiblockShape shape = getShape(context);
+        BlockPos origin = context.getClickedPos().offset(shape.getPlacementOffset()).subtract(shape.getControllerPosition());
+        return shape.getRelativeBounds().move(origin);
     }
 
     @Override
     public boolean canPlace(@NotNull BlockPlaceContext context, @NotNull BlockState state) {
         Level level = context.getLevel();
-        AABB bounds = getMultiblockBounds(context);
+        GhostMultiblockShape shape = getShape(context);
+        BlockPos controllerWorldPos = context.getClickedPos().offset(shape.getPlacementOffset());
+        BlockPos origin = controllerWorldPos.subtract(shape.getControllerPosition());
 
-        List<BlockPos> badPos = AABBUtils.getAllPositionsInAABB(bounds)
-                .stream()
-                .filter(pos -> !level.getBlockState(pos).canBeReplaced())
-                .toList();
+        Set<BlockPos> allRelativePositions = new HashSet<>(shape.getPartPositions());
+        allRelativePositions.add(shape.getControllerPosition());
 
-        return badPos.isEmpty() && super.canPlace(context, state);
+        for (BlockPos relativePos : allRelativePositions) {
+            BlockPos worldPos = origin.offset(relativePos);
+            if (!level.getBlockState(worldPos).canBeReplaced()) {
+                return false;
+            }
+        }
+
+        return super.canPlace(context, state);
     }
 
     @Override
@@ -88,8 +99,8 @@ public abstract class GhostControllerItem extends BlockItem {
         }
 
         GhostMultiblockShape shape = getShape(context);
-        BlockPos origin = getOrigin(context);
-        BlockPos controllerWorldPos = origin.offset(shape.getControllerPosition());
+        BlockPos controllerWorldPos = context.getClickedPos().offset(shape.getPlacementOffset());
+        BlockPos origin = controllerWorldPos.subtract(shape.getControllerPosition());
 
         Set<BlockPos> allRelativePositions = new HashSet<>(shape.getPartPositions());
         allRelativePositions.add(shape.getControllerPosition());
@@ -116,19 +127,16 @@ public abstract class GhostControllerItem extends BlockItem {
 
         // Link controller to parts
         if (level.getBlockEntity(controllerWorldPos) instanceof GhostMultiblockControllerBE controllerBE) {
-            List<BlockPos> partWorldPositions = shape.getPartPositions().stream()
+            Set<BlockPos> partWorldPositions = shape.getPartPositions().stream()
                 .map(origin::offset)
-                .collect(Collectors.toList());
-            List<BlockPos> itemHandlerPartPositions = shape.getItemHandlerParts().stream()
-                .map(origin::offset)
-                .collect(Collectors.toList());
-            List<BlockPos> fluidHandlerPartPositions = shape.getFluidHandlerParts().stream()
-                .map(origin::offset)
-                .collect(Collectors.toList());
-            List<BlockPos> energyHandlerPartPositions = shape.getEnergyStorageParts().stream()
-                .map(origin::offset)
-                .collect(Collectors.toList());
-            controllerBE.setPartPositions(partWorldPositions, itemHandlerPartPositions, fluidHandlerPartPositions, energyHandlerPartPositions);
+                .collect(Collectors.toSet());
+            Map<BlockPos, List<ResourceLocation>> handlerExposure = new HashMap<>();
+            shape.getHandlerExposure().forEach((relativePos, handlers) ->
+                    handlerExposure.put(origin.offset(relativePos), handlers));
+            Map<BlockPos, GhostPartMenuFactory> partMenus = new HashMap<>();
+            shape.getPartMenus().forEach((relativePos, factory) ->
+                    partMenus.put(origin.offset(relativePos), factory));
+            controllerBE.setPartConfiguration(partWorldPositions, handlerExposure, partMenus);
         }
 
         List<BlockPos> allWorldPositions = allRelativePositions.stream().map(origin::offset).collect(Collectors.toList());
