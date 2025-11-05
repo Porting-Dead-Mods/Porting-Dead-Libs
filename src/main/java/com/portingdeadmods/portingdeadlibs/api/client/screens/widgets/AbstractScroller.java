@@ -1,14 +1,14 @@
 package com.portingdeadmods.portingdeadlibs.api.client.screens.widgets;
 
-import com.portingdeadmods.portingdeadlibs.api.client.screens.PDLAbstractContainerScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class AbstractScroller extends AbstractWidget {
-    private final PDLAbstractContainerScreen<?> parentScreen;
+    private final Screen parentScreen;
     private final ResourceLocation sprite;
     private final int trackLength;
     private final AbstractScroller.Mode mode;
@@ -32,7 +32,7 @@ public abstract class AbstractScroller extends AbstractWidget {
      * @param mode Orientation of the scroller
      * @param sprite The texture of the scroller - It's recommended the texture to have an odd size (centerable to 1 px. Width for Horizontal - Horizontal for Vertical)
      */
-    public AbstractScroller(PDLAbstractContainerScreen<?> parentScreen, int x, int y, int width, int height, int trackLength, AbstractScroller.Mode mode, ResourceLocation sprite) {
+    public AbstractScroller(Screen parentScreen, int x, int y, int width, int height, int trackLength, AbstractScroller.Mode mode, ResourceLocation sprite) {
         super(x, y, width, height, Component.empty());
 
         this.parentScreen = parentScreen;
@@ -54,8 +54,8 @@ public abstract class AbstractScroller extends AbstractWidget {
 
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.offsetX = this.parentScreen.getGuiLeft() + this.getX();
-        this.offsetY = this.parentScreen.getGuiTop() + this.getY();
+        this.offsetX = this.parentScreen.getRectangle().left() + this.getX();
+        this.offsetY = this.parentScreen.getRectangle().top() + this.getY();
 
         if (this.mode == Mode.VERTICAL) {
             guiGraphics.blitSprite(this.sprite, this.offsetX, this.offsetY + (int) (this.scrollPercentage * this.trackLength), this.width, this.height);
