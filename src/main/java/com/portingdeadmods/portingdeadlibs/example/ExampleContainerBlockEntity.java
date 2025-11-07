@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.energy.EmptyEnergyStorage;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -32,6 +33,14 @@ public class ExampleContainerBlockEntity extends ContainerBlockEntity {
                 .slots(27)
                 .validator((slot, item) -> item.is(Items.DIAMOND))
                 .onChange(this::onItemsChanged));
+        this.addFluidHandler(HandlerUtils::newFluidTank,builder -> builder
+                .slotLimit(slot -> 64)
+                .slots(27)
+                .validator((slot, fluid) -> fluid.is(Tags.Fluids.WATER))
+                .onChange(this::onItemsChanged));
+        this.addEnergyStorage(HandlerUtils::newEnergystorage,builder -> builder
+                .capacity(1000)
+                .onChange(() -> {}));
         this.addHandler(Capabilities.EnergyStorage.BLOCK, EmptyEnergyStorage.INSTANCE, SerializerUtils::empty);
         this.addHandler(Capabilities.FluidHandler.BLOCK, new FluidTank(1024), SerializerUtils::fluidTank);
     }
