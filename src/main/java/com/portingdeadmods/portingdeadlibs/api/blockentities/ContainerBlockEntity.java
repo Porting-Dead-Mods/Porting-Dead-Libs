@@ -1,11 +1,5 @@
 package com.portingdeadmods.portingdeadlibs.api.blockentities;
 
-import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
-import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedEnergyStorage;
-import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedFluidHandler;
-import com.portingdeadmods.portingdeadlibs.api.capabilities.SidedItemHandler;
-import com.portingdeadmods.portingdeadlibs.api.utils.IOAction;
-import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
@@ -14,7 +8,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -26,7 +19,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -57,39 +49,42 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         this.handlerSerializers = new HashMap<>();
     }
 
-    protected <C> void addHandler(ResourceLocation key, C handler) {
+    protected <H> H addHandler(ResourceLocation key, H handler) {
         this.handlers.put(key, handler);
+        return handler;
     }
 
-    protected <C> void addHandler(BlockCapability<C, Direction> capability, C handler) {
-        this.addHandler(capability.name(), handler);
+    protected <H> H addHandler(BlockCapability<H, Direction> capability, H handler) {
+        return this.addHandler(capability.name(), handler);
     }
 
-    protected <C> void addHandler(BlockCapability<C, Direction> capability, C handler, Function<C, INBTSerializable<?>> serializerFactory) {
-        this.addHandler(capability, handler);
+    protected <H> H addHandler(BlockCapability<H, Direction> capability, H handler, Function<H, INBTSerializable<?>> serializerFactory) {
+        H addedHandler = this.addHandler(capability, handler);
         this.handlerSerializers.put(capability.name(), (Function<Object, INBTSerializable<?>>) serializerFactory);
+        return addedHandler;
     }
 
-    protected <C> void addHandler(ResourceLocation key, C handler, Function<C, INBTSerializable<?>> serializerFactory) {
-        this.addHandler(key, handler);
+    protected <H> H addHandler(ResourceLocation key, H handler, Function<H, INBTSerializable<?>> serializerFactory) {
+        H addedHandler = this.addHandler(key, handler);
         this.handlerSerializers.put(key, (Function<Object, INBTSerializable<?>>) serializerFactory);
+        return addedHandler;
     }
 
-    protected void addItemHandler(HandlerFactory<IItemHandler, ItemStack> factory, UnaryOperator<ItemHandlerBuilder> builder) {
-        ItemHandlerBuilder builder1 = builder.apply(new ItemHandlerBuilder(factory));
+    protected <H extends IItemHandler> H addItemHandler(HandlerFactory<H, ItemStack> factory, UnaryOperator<ItemHandlerBuilder<H>> builder) {
+        ItemHandlerBuilder<H> builder1 = builder.apply(new ItemHandlerBuilder<>(factory));
         if (builder1.serializer != null) {
-            this.addHandler(Capabilities.ItemHandler.BLOCK, builder1.build(), h -> builder1.serializer);
+            return (H) this.addHandler(Capabilities.ItemHandler.BLOCK, builder1.build(), h -> builder1.serializer);
         } else {
-            this.addHandler(Capabilities.ItemHandler.BLOCK, builder1.build());
+            return (H) this.addHandler(Capabilities.ItemHandler.BLOCK, builder1.build());
         }
     }
 
-    protected void addFluidHandler(HandlerFactory<IFluidHandler, FluidStack> factory, UnaryOperator<FluidHandlerBuilder> builder) {
-        FluidHandlerBuilder builder1 = builder.apply(new FluidHandlerBuilder(factory));
+    protected <H extends IFluidHandler> H addFluidHandler(HandlerFactory<H, FluidStack> factory, UnaryOperator<FluidHandlerBuilder<H>> builder) {
+        FluidHandlerBuilder<H> builder1 = builder.apply(new FluidHandlerBuilder<>(factory));
         if (builder1.serializer != null) {
-            this.addHandler(Capabilities.FluidHandler.BLOCK, builder1.build(), h -> builder1.serializer);
+            return (H) this.addHandler(Capabilities.FluidHandler.BLOCK, builder1.build(), h -> builder1.serializer);
         } else {
-            this.addHandler(Capabilities.FluidHandler.BLOCK, builder1.build());
+            return (H) this.addHandler(Capabilities.FluidHandler.BLOCK, builder1.build());
         }
     }
 
@@ -362,34 +357,34 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         return this.saveWithoutMetadata(provider);
     }
 
-    public static class ItemHandlerBuilder extends HandlerBuilder<ItemStack, IItemHandler, ItemHandlerBuilder> {
-        private final HandlerFactory<IItemHandler, ItemStack> factory;
+    public static class ItemHandlerBuilder<H extends IItemHandler> extends HandlerBuilder<ItemStack, H, ItemHandlerBuilder<H>> {
+        private final HandlerFactory<H, ItemStack> factory;
         private int slots;
         private Int2IntFunction slotLimitFunction;
 
-        private ItemHandlerBuilder(HandlerFactory<IItemHandler, ItemStack> factory) {
+        private ItemHandlerBuilder(HandlerFactory<H, ItemStack> factory) {
             this.factory = Objects.requireNonNull(factory, "Handler factory must not be null!");
             this.slots = 1;
             this.slotLimitFunction = $ -> Item.DEFAULT_MAX_STACK_SIZE;
         }
 
-        public ItemHandlerBuilder slots(int slots) {
+        public ItemHandlerBuilder<H> slots(int slots) {
             this.slots = slots;
             return this;
         }
 
-        public ItemHandlerBuilder slotLimit(Int2IntFunction slotLimitFunction) {
+        public ItemHandlerBuilder<H> slotLimit(Int2IntFunction slotLimitFunction) {
             this.slotLimitFunction = slotLimitFunction;
             return this;
         }
 
         @Override
-        public IItemHandler build() {
+        public H build() {
 			if (this.validator == null) this.validator = (a, b) -> true;
 			if (this.slotLimitFunction == null) this.slotLimitFunction = (a) -> 64;
 			if (this.onChange == null) this.onChange = $ -> {};
 
-            IItemHandler itemHandler = this.factory.create(this.validator, this.slotLimitFunction, this.onChange, this.slots);
+            H itemHandler = this.factory.create(this.validator, this.slotLimitFunction, this.onChange, this.slots);
             if (itemHandler instanceof INBTSerializable<?> serializable && this.serializer == null) {
                 this.serializer = serializable;
             }
@@ -397,34 +392,34 @@ public abstract class ContainerBlockEntity extends BlockEntity {
         }
     }
 
-    public static class FluidHandlerBuilder extends HandlerBuilder<FluidStack, IFluidHandler, FluidHandlerBuilder> {
-        private final HandlerFactory<IFluidHandler, FluidStack> factory;
+    public static class FluidHandlerBuilder<H extends IFluidHandler> extends HandlerBuilder<FluidStack, H, FluidHandlerBuilder<H>> {
+        private final HandlerFactory<H, FluidStack> factory;
         private int slots;
         private Int2IntFunction slotLimitFunction;
 
-        private FluidHandlerBuilder(HandlerFactory<IFluidHandler, FluidStack> factory) {
+        private FluidHandlerBuilder(HandlerFactory<H, FluidStack> factory) {
             this.factory = Objects.requireNonNull(factory, "Handler factory must not be null!");
             this.slots = 1;
             this.slotLimitFunction = $ -> Item.DEFAULT_MAX_STACK_SIZE;
         }
 
-        public FluidHandlerBuilder slots(int slots) {
+        public FluidHandlerBuilder<H> slots(int slots) {
             this.slots = slots;
             return this;
         }
 
-        public FluidHandlerBuilder slotLimit(Int2IntFunction slotLimitFunction) {
+        public FluidHandlerBuilder<H> slotLimit(Int2IntFunction slotLimitFunction) {
             this.slotLimitFunction = slotLimitFunction;
             return this;
         }
 
         @Override
-        public IFluidHandler build() {
+        public H build() {
 	        if (this.validator == null) this.validator = (a, b) -> true;
 	        if (this.slotLimitFunction == null) this.slotLimitFunction = (a) -> 64;
 	        if (this.onChange == null) this.onChange = $ -> {};
 
-            IFluidHandler fluidHandler = this.factory.create(this.validator, this.slotLimitFunction, this.onChange, this.slots);
+            H fluidHandler = this.factory.create(this.validator, this.slotLimitFunction, this.onChange, this.slots);
             if (fluidHandler instanceof INBTSerializable<?> serializable && this.serializer == null) {
                 this.serializer = serializable;
             }

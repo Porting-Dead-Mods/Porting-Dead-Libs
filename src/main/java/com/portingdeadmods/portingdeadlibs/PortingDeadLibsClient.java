@@ -7,6 +7,7 @@ import com.portingdeadmods.portingdeadlibs.api.ghost.GhostMultiblockController;
 import com.portingdeadmods.portingdeadlibs.api.ghost.GhostMultiblockPart;
 import com.portingdeadmods.portingdeadlibs.client.PDLRenderTypes;
 import com.portingdeadmods.portingdeadlibs.mixins.LevelRendererMixin;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -27,6 +28,8 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -46,6 +49,10 @@ public final class PortingDeadLibsClient {
         modEventBus.addListener(this::registerClientExtensions);
 
 	    NeoForge.EVENT_BUS.addListener(this::renderOutline);
+
+        if (SharedConstants.IS_RUNNING_IN_IDE) {
+            modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        }
     }
 
     private void registerClientExtensions(RegisterClientExtensionsEvent event) {

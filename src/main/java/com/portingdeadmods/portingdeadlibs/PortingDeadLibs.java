@@ -3,13 +3,16 @@ package com.portingdeadmods.portingdeadlibs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.logging.LogUtils;
+import com.portingdeadmods.portingdeadlibs.api.config.PDLConfigHelper;
 import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
+import com.portingdeadmods.portingdeadlibs.example.ExampleConfig;
 import com.portingdeadmods.portingdeadlibs.example.ExampleRegistries;
 import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.slf4j.Logger;
 
@@ -31,6 +34,8 @@ public final class PortingDeadLibs {
             ExampleRegistries.ITEMS.register(modEventBus);
             ExampleRegistries.BLOCKS.register(modEventBus);
             ExampleRegistries.BLOCK_ENTITIES.register(modEventBus);
+
+            PDLConfigHelper.registerConfig(ExampleConfig.class, ModConfig.Type.COMMON, modContainer);
         }
 
     }

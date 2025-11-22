@@ -28,7 +28,7 @@ public class ExampleContainerBlockEntity extends ContainerBlockEntity {
     public ExampleContainerBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(ExampleRegistries.EXAMPLE_CONTAINER_BLOCK_ENTITY.get(), blockPos, blockState);
 
-        this.addItemHandler(HandlerUtils::newItemStackHandler,builder -> builder
+        ItemStackHandler itemStackHandler = this.addItemHandler(HandlerUtils::newItemStackHandler, builder -> builder
                 .slotLimit(slot -> 64)
                 .slots(27)
                 .validator((slot, item) -> item.is(Items.DIAMOND))

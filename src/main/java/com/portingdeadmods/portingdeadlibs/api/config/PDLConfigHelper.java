@@ -2,6 +2,7 @@ package com.portingdeadmods.portingdeadlibs.api.config;
 
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -17,6 +18,16 @@ import java.util.function.BiConsumer;
 
 @EventBusSubscriber(modid = PortingDeadLibs.MODID)
 public class PDLConfigHelper {
+    public static PDLConfig registerConfig(Class<?> configClass, ModConfig.Type configType, ModContainer modContainer) {
+        PDLConfig pdlConfig = registerConfig(configClass, configType);
+        pdlConfig.register(modContainer);
+        return pdlConfig;
+    }
+
+    /**
+     * Use {@link PDLConfigHelper#registerConfig(Class, ModConfig.Type, ModContainer)} instead
+     */
+    @Deprecated(forRemoval = true)
     public static PDLConfig registerConfig(Class<?> configClass, ModConfig.Type configType) {
         PDLConfig config = new PDLConfig(configClass, configType);
 

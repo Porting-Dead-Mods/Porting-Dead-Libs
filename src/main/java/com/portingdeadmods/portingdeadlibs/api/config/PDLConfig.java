@@ -55,7 +55,8 @@ public class PDLConfig {
                 this.specConfigValues.put(path, switch (value.type()) {
                     case BYTE, SHORT, INTEGER -> builder.defineInRange(path, (int) value.defaultValue(), (int) value.min(), (int) value.max());
                     case LONG -> builder.defineInRange(path, (long) value.defaultValue(), (long) value.min(), (long) value.max());
-                    case FLOAT, DOUBLE -> builder.defineInRange(path, (double) value.defaultValue(), value.min(), value.max());
+                    case FLOAT -> builder.defineInRange(path, (Float) value.defaultValue(), value.min(), value.max());
+                    case DOUBLE -> builder.defineInRange(path, (Double) value.defaultValue(), value.min(), value.max());
                     case STRING -> builder.define(path, value.defaultValue());
                     case BOOLEAN -> builder.define(path, (boolean) value.defaultValue());
                     case ENUM -> builder.defineEnum(path, (Enum) value.defaultValue());
