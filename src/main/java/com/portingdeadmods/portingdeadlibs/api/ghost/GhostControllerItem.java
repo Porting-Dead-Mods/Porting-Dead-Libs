@@ -1,7 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.api.ghost;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -130,7 +130,7 @@ public abstract class GhostControllerItem extends BlockItem {
             Set<BlockPos> partWorldPositions = shape.getPartPositions().stream()
                 .map(origin::offset)
                 .collect(Collectors.toSet());
-            Map<BlockPos, List<ResourceLocation>> handlerExposure = new HashMap<>();
+            Map<BlockPos, List<Identifier>> handlerExposure = new HashMap<>();
             shape.getHandlerExposure().forEach((relativePos, handlers) ->
                     handlerExposure.put(origin.offset(relativePos), handlers));
             Map<BlockPos, GhostPartMenuFactory> partMenus = new HashMap<>();

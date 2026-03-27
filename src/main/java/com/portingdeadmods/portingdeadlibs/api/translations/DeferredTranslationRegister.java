@@ -3,7 +3,7 @@ package com.portingdeadmods.portingdeadlibs.api.translations;
 import com.portingdeadmods.portingdeadlibs.PDLRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -42,12 +42,12 @@ public class DeferredTranslationRegister extends DeferredRegister<TranslatableCo
     }
 
     @Override
-    public <I extends TranslatableConstant> DeferredTranslation<I> register(String name, Function<ResourceLocation, ? extends I> func) {
+    public <I extends TranslatableConstant> DeferredTranslation<I> register(String name, Function<Identifier, ? extends I> func) {
         return (DeferredTranslation<I>) super.register(name, func);
     }
 
     @Override
-    protected <I extends TranslatableConstant> DeferredTranslation<I> createHolder(ResourceKey<? extends Registry<TranslatableConstant>> registryKey, ResourceLocation key) {
+    protected <I extends TranslatableConstant> DeferredTranslation<I> createHolder(ResourceKey<? extends Registry<TranslatableConstant>> registryKey, Identifier key) {
         return DeferredTranslation.createTranslation(ResourceKey.create(registryKey, key));
     }
 }

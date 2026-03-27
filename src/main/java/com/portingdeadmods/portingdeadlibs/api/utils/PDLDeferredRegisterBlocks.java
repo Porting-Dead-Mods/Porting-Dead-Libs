@@ -1,6 +1,8 @@
 package com.portingdeadmods.portingdeadlibs.api.utils;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -29,8 +31,8 @@ public class PDLDeferredRegisterBlocks extends DeferredRegister.Blocks {
     }
 
     public <B extends Block> DeferredBlock<B> registerWithItem(String name, Supplier<? extends B> sup) {
-        DeferredBlock<B> block = this.register(name, key -> sup.get());
-        DeferredItem<BlockItem> item = this.itemsRegistry.registerSimpleBlockItem(name, block, new Item.Properties());
+        DeferredBlock<B> block = this.register(name, _ -> sup.get());
+        DeferredItem<BlockItem> item = this.itemsRegistry.registerSimpleBlockItem(name, block, Item.Properties::new);
         this.blockItems.add(item);
         return block;
     }
@@ -43,19 +45,19 @@ public class PDLDeferredRegisterBlocks extends DeferredRegister.Blocks {
     }
 
     public <B extends Block> DeferredBlock<B> registerBlockWithItem(String name, Function<BlockBehaviour.Properties, ? extends B> func, BlockBehaviour.Properties props) {
-        return this.registerWithItem(name, (() -> func.apply(props)));
+        return this.registerWithItem(name, (() -> func.apply(props.setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.getNamespace(), name))))));
     }
 
     public <B extends Block> DeferredBlock<B> registerBlockWithItem(String name, Function<BlockBehaviour.Properties, ? extends B> func) {
-        return this.registerBlockWithItem(name, func, BlockBehaviour.Properties.of());
+        return this.registerBlockWithItem(name, func, BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.getNamespace(), name))));
     }
 
     public DeferredBlock<Block> registerSimpleBlockWithItem(String name, BlockBehaviour.Properties props) {
-        return this.registerBlockWithItem(name, Block::new, props);
+        return this.registerBlockWithItem(name, Block::new, props.setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.getNamespace(), name))));
     }
 
     public DeferredBlock<Block> registerSimpleBlockWithItem(String name) {
-        return this.registerSimpleBlockWithItem(name, BlockBehaviour.Properties.of());
+        return this.registerSimpleBlockWithItem(name, BlockBehaviour.Properties.of().setId(ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(this.getNamespace(), name))));
     }
 
     public List<Supplier<? extends BlockItem>> getBlockItems() {

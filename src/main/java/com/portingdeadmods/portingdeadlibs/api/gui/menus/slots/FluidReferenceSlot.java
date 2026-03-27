@@ -1,12 +1,14 @@
 package com.portingdeadmods.portingdeadlibs.api.gui.menus.slots;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,11 +30,12 @@ public class FluidReferenceSlot extends ReferenceSlot<FluidStack> {
 	public boolean setReference(ItemStack stack) {
 		// This is called for direct item stack references
 		// We only care about fluid containers
-		IFluidHandlerItem fluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+		ResourceHandler<FluidResource> fluidHandler = stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(stack));
+
 		if (fluidHandler != null) {
-			FluidStack fluid = fluidHandler.getFluidInTank(0);
+			FluidResource fluid = fluidHandler.getResource(0);
 			if (!fluid.isEmpty()) {
-				return setReferenceDirectly(fluid);
+				return setReferenceDirectly(fluid.toStack(fluidHandler.getAmountAsInt(0)));
 			}
 		}
 		return false;
@@ -57,19 +60,19 @@ public class FluidReferenceSlot extends ReferenceSlot<FluidStack> {
 	}
 
 	@Override
-	public boolean handleSpecialClick(Player player, ClickType clickType, ClickAction clickAction) {
-		ItemStack heldItem = player.getInventory().getSelected();
+	public boolean handleSpecialClick(Player player, MouseButtonEvent event) {
+		ItemStack heldItem = player.getInventory().getSelectedItem();
 
 		// Handle mouse click with a fluid container
 		if (!heldItem.isEmpty()) {
-			IFluidHandlerItem fluidHandler = heldItem.getCapability(Capabilities.FluidHandler.ITEM);
+			ResourceHandler<FluidResource> fluidHandler = heldItem.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(heldItem));
 			if (fluidHandler != null) {
-				FluidStack fluid = fluidHandler.getFluidInTank(0);
+				FluidResource fluid = fluidHandler.getResource(0);
 				if (!fluid.isEmpty()) {
-					return setReferenceDirectly(fluid);
+					return setReferenceDirectly(fluid.toStack(fluidHandler.getAmountAsInt(0)));
 				}
 			}
-		} else if (clickAction == ClickAction.SECONDARY) {
+		} else if (event.isRight()) {
 			// Clear on right-click with empty hand
 			clearReference();
 			return true;

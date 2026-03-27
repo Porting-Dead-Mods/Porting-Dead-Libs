@@ -5,7 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +34,7 @@ public final class BlockUtils {
         };
     }
 
-    public static BlockState rotateBlock(BlockState state, DirectionProperty prop, Comparable<?> currentValue) {
+    public static BlockState rotateBlock(BlockState state, EnumProperty<Direction> prop, Comparable<?> currentValue) {
         List<Direction> directions = prop.getPossibleValues().stream().toList();
         int currentDirectionIndex = directions.indexOf(currentValue);
         int nextDirectionIndex = (currentDirectionIndex + 1) % directions.size();

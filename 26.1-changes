@@ -1,0 +1,2 @@
+Use SizedIngredients instead of IngredientWithCount/Amount
+Simplified container blockentity logic

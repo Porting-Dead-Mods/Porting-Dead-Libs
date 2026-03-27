@@ -2,7 +2,7 @@ package com.portingdeadmods.portingdeadlibs.cache;
 
 import com.portingdeadmods.portingdeadlibs.utils.UniqueArray;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.world.entity.player.PlayerSkin;
 
 import java.util.HashMap;
 import java.util.List;

@@ -2,10 +2,11 @@ package com.portingdeadmods.portingdeadlibs.utils.renderers;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
+import org.joml.Matrix3x2fStack;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 
@@ -92,7 +93,7 @@ public class Polygon implements Renderable {
     }
 
     public Polygon setColor(int a, int r, int g, int b) {
-        return this.setColor(FastColor.ARGB32.color(a, r, g, b));
+        return this.setColor(ARGB.color(a, r, g, b));
     }
 
     public Polygon setFilled(boolean filled) {
@@ -106,39 +107,41 @@ public class Polygon implements Renderable {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int x, int y, float partialTick) {
-        if (vertices.size() < 3) return;
-
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-
-        Matrix4f matrix = poseStack.last().pose();
-
-        float r = FastColor.ARGB32.red(color) / 255f;
-        float g = FastColor.ARGB32.green(color) / 255f;
-        float b = FastColor.ARGB32.blue(color) / 255f;
-        float a = FastColor.ARGB32.alpha(color) / 255f;
-
-        if (a == 0) return;
-
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-
-        Tesselator tesselator = Tesselator.getInstance();
-
-        if (filled) {
-            renderFilledPolygon(tesselator, matrix, x, y, r, g, b, a);
-        } else {
-            // renderOutlinePolygon(tesselator, matrix, x, y, r, g, b, a);
-        }
-
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
-        RenderSystem.disableBlend();
-        poseStack.popPose();
+    public void extractRenderState(GuiGraphicsExtractor guiGraphics, int x, int y, float partialTick) {
+//        if (vertices.size() < 3) return;
+//
+//        Matrix3x2fStack poseStack = guiGraphics.pose();
+//        poseStack.pushMatrix();
+//
+//        Matrix4f matrix = poseStack.last().pose();
+//
+//        float r = ARGB.red(color) / 255f;
+//        float g = ARGB.green(color) / 255f;
+//        float b = ARGB.blue(color) / 255f;
+//        float a = ARGB.alpha(color) / 255f;
+//
+//        if (a == 0) return;
+//
+//        guiGraphics.blitInscribed();
+//
+//        RenderSystem.enableBlend();
+//        RenderSystem.defaultBlendFunc();
+//        RenderSystem.disableDepthTest();
+//        RenderSystem.disableCull();
+//        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+//
+//        Tesselator tesselator = Tesselator.getInstance();
+//
+//        if (filled) {
+//            renderFilledPolygon(tesselator, matrix, x, y, r, g, b, a);
+//        } else {
+//            // renderOutlinePolygon(tesselator, matrix, x, y, r, g, b, a);
+//        }
+//
+//        RenderSystem.enableDepthTest();
+//        RenderSystem.enableCull();
+//        RenderSystem.disableBlend();
+//        poseStack.popPose();
     }
 
     private void renderFilledPolygon(Tesselator tesselator, Matrix4f matrix, int x, int y,
@@ -161,7 +164,7 @@ public class Polygon implements Renderable {
             }
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        //BufferUploader.drawWithShader(buffer.buildOrThrow());
     }
 
 

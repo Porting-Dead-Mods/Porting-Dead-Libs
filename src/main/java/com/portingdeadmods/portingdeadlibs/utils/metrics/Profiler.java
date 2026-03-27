@@ -3,7 +3,7 @@ package com.portingdeadmods.portingdeadlibs.utils.metrics;
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.commands.Commands;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -81,12 +81,12 @@ public class Profiler {
         public static void onRender(RenderGuiEvent.Post event) {
             if (!enabled) return;
 
-            GuiGraphics graphics = event.getGuiGraphics();
+            GuiGraphicsExtractor graphics = event.getGuiGraphics();
             int y = 5;
 
             for (ProfilerInstance instance : INSTANCES.values()) {
                 String text = instance.getStats();
-                graphics.drawString(Minecraft.getInstance().font, text, 5, y, instance.color.getColor());
+                graphics.text(Minecraft.getInstance().font, text, 5, y, instance.color.getColor());
                 y += 10;
             }
         }

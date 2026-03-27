@@ -1,17 +1,18 @@
 package com.portingdeadmods.portingdeadlibs.api.ghost;
 
-import com.portingdeadmods.portingdeadlibs.api.blocks.ContainerBlock;
+import com.portingdeadmods.portingdeadlibs.api.blocks.PDLEntityBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class GhostMultiblockController extends ContainerBlock {
+public abstract class GhostMultiblockController extends PDLEntityBlock {
     public GhostMultiblockController(Properties properties) {
         super(properties);
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         if (level.getBlockEntity(pos) instanceof GhostMultiblockControllerBE controllerBE) {
             if (!controllerBE.partPositions.isEmpty()) {
                 controllerBE.partPositions.forEach(partPos -> {
@@ -21,6 +22,7 @@ public abstract class GhostMultiblockController extends ContainerBlock {
                 });
             }
         }
-        super.onRemove(state, level, pos, newState, isMoving);
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
+
 }

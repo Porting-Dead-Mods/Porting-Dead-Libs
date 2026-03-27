@@ -1,10 +1,9 @@
 package com.portingdeadmods.portingdeadlibs.api.gui.menus.slots;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -51,8 +50,8 @@ public class ItemReferenceSlot extends ReferenceSlot<ItemStack> {
 	}
 
 	@Override
-	public boolean handleSpecialClick(Player player, ClickType clickType, ClickAction clickAction) {
-		if (clickAction == ClickAction.SECONDARY && player.getInventory().getSelected().isEmpty()) {
+	public boolean handleSpecialClick(Player player, MouseButtonEvent event) {
+		if (event.isRight() && player.getInventory().getSelectedItem().isEmpty()) {
 			// Clear on right-click with empty hand
 			clearReference();
 			return true;

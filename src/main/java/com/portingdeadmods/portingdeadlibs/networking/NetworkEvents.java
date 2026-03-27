@@ -2,8 +2,6 @@ package com.portingdeadmods.portingdeadlibs.networking;
 
 import com.portingdeadmods.portingdeadlibs.PDLRegistries;
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
-import com.portingdeadmods.portingdeadlibs.api.data.saved.PDLSavedData;
-import com.portingdeadmods.portingdeadlibs.api.data.saved.SavedDataHolder;
 import com.portingdeadmods.portingdeadlibs.networking.cache.AskServerPlayers;
 import com.portingdeadmods.portingdeadlibs.networking.cache.ReceiveServerPlayers;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -32,19 +30,5 @@ public class NetworkEvents {
 				ReceiveServerPlayers.STREAM_CODEC,
 				ReceiveServerPlayers::pong
 		);
-
-		for (PDLSavedData<?> savedData : PDLRegistries.SAVED_DATA) {
-			SavedDataHolder<?> holder = SavedDataHolder.fromValue(savedData);
-			registrar.playToClient(
-					SyncSavedDataToClientPayload.type(holder),
-					SyncSavedDataToClientPayload.streamCodec(holder),
-					SyncSavedDataToClientPayload::handle
-			);
-			registrar.playToServer(
-					SyncSavedDataToServerPayload.type(holder),
-					SyncSavedDataToServerPayload.streamCodec(holder),
-					SyncSavedDataToServerPayload::handle
-			);
-		}
 	}
 }

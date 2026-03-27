@@ -1,15 +1,17 @@
 package com.portingdeadmods.portingdeadlibs.api.client.screens.widgets;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class AbstractScroller extends AbstractWidget {
     private final Screen parentScreen;
-    private final ResourceLocation sprite;
+    private final Identifier sprite;
     private final int trackLength;
     private final AbstractScroller.Mode mode;
     private final int padding;
@@ -32,7 +34,7 @@ public abstract class AbstractScroller extends AbstractWidget {
      * @param mode Orientation of the scroller
      * @param sprite The texture of the scroller - It's recommended the texture to have an odd size (centerable to 1 px. Width for Horizontal - Horizontal for Vertical)
      */
-    public AbstractScroller(Screen parentScreen, int x, int y, int width, int height, int trackLength, AbstractScroller.Mode mode, ResourceLocation sprite) {
+    public AbstractScroller(Screen parentScreen, int x, int y, int width, int height, int trackLength, AbstractScroller.Mode mode, Identifier sprite) {
         super(x, y, width, height, Component.empty());
 
         this.parentScreen = parentScreen;
@@ -48,19 +50,15 @@ public abstract class AbstractScroller extends AbstractWidget {
         }
     }
 
-    public void renderWidget(GuiGraphics guiGraphics) {
-        this.renderWidget(guiGraphics, 0, 0, 0);
-    }
-
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.offsetX = this.parentScreen.getRectangle().left() + this.getX();
         this.offsetY = this.parentScreen.getRectangle().top() + this.getY();
 
         if (this.mode == Mode.VERTICAL) {
-            guiGraphics.blitSprite(this.sprite, this.offsetX, this.offsetY + (int) (this.scrollPercentage * this.trackLength), this.width, this.height);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.sprite, this.offsetX, this.offsetY + (int) (this.scrollPercentage * this.trackLength), this.width, this.height);
         } else {
-            guiGraphics.blitSprite(this.sprite, this.offsetX + (int) (this.scrollPercentage * this.trackLength), this.offsetY, this.width, this.height);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.sprite, this.offsetX + (int) (this.scrollPercentage * this.trackLength), this.offsetY, this.width, this.height);
         }
 
         if (this.mbDown)
@@ -98,36 +96,43 @@ public abstract class AbstractScroller extends AbstractWidget {
     }
 
     @Override
-    public boolean clicked(double mouseX, double mouseY) {
-        boolean flag;
-        if (this.mode == AbstractScroller.Mode.VERTICAL) {
-            flag = (
-                    this.active &&
-                            this.visible &&
-                            mouseX >= this.offsetX &&
-                            mouseY >= this.offsetY &&
-                            mouseX < this.offsetX + this.width &&
-                            mouseY < this.offsetY + this.trackLength + 2 * this.padding
-            );
-        } else {
-            flag = (
-                    this.active &&
-                            this.visible &&
-                            mouseX >= this.offsetX &&
-                            mouseY >= this.offsetY &&
-                            mouseX < this.offsetX + this.trackLength + 2 * this.padding &&
-                            mouseY < this.offsetY + this.height
-            );
-        }
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        if (super.mouseClicked(event, doubleClick)) {
+            boolean flag;
+            if (this.mode == AbstractScroller.Mode.VERTICAL) {
+                flag = (
+                        this.active &&
+                                this.visible &&
+                                mouseX >= this.offsetX &&
+                                mouseY >= this.offsetY &&
+                                mouseX < this.offsetX + this.width &&
+                                mouseY < this.offsetY + this.trackLength + 2 * this.padding
+                );
+            } else {
+                flag = (
+                        this.active &&
+                                this.visible &&
+                                mouseX >= this.offsetX &&
+                                mouseY >= this.offsetY &&
+                                mouseX < this.offsetX + this.trackLength + 2 * this.padding &&
+                                mouseY < this.offsetY + this.height
+                );
+            }
 
-		flag = (flag && (this.getContentLength() >= this.getVisibleContentLength()));
-        if (flag) mbDown = true;
-        updatePos(mouseX, mouseY);
-        return flag;
+            flag = (flag && (this.getContentLength() >= this.getVisibleContentLength()));
+            if (flag) mbDown = true;
+            updatePos(mouseX, mouseY);
+            return flag;
+        }
+        return false;
     }
 
     @Override
-    public void onRelease(double mouseX, double mouseY) {
+    public void onRelease(MouseButtonEvent event) {
+        super.onRelease(event);
+
         mbDown = false;
     }
 

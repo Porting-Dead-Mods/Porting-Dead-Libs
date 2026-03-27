@@ -1,8 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.utils.renderers;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import net.minecraft.util.FastColor;
-import net.neoforged.neoforge.client.model.IModelBuilder;
+import net.minecraft.util.ARGB;
 
 import java.util.Random;
 
@@ -24,7 +23,7 @@ public class Effects {
             NativeImage output = new NativeImage(input.getWidth(), input.getHeight(), false);
             for (int y = 0; y < input.getHeight(); y++) {
                 for (int x = 0; x < input.getWidth(); x++) {
-                    output.setPixelRGBA(x, y, processPixel(x, y, input.getPixelRGBA(x, y), input));
+                    output.setPixel(x, y, processPixel(x, y, input.getPixel(x, y), input));
                 }
             }
             return output;
@@ -68,13 +67,13 @@ public class Effects {
     public static class Grayscale extends SimplePixelEffect {
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = FastColor.ARGB32.red(color);
-            int g = FastColor.ARGB32.green(color);
-            int b = FastColor.ARGB32.blue(color);
+            int a = ARGB.alpha(color);
+            int r = ARGB.red(color);
+            int g = ARGB.green(color);
+            int b = ARGB.blue(color);
 
             int gray = (int)(0.299f * r + 0.587f * g + 0.114f * b);
-            return FastColor.ARGB32.color(a, gray, gray, gray);
+            return ARGB.color(a, gray, gray, gray);
         }
 
         @Override
@@ -86,12 +85,12 @@ public class Effects {
     public static class Invert extends SimplePixelEffect {
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = 255 - FastColor.ARGB32.red(color);
-            int g = 255 - FastColor.ARGB32.green(color);
-            int b = 255 - FastColor.ARGB32.blue(color);
+            int a = ARGB.alpha(color);
+            int r = 255 - ARGB.red(color);
+            int g = 255 - ARGB.green(color);
+            int b = 255 - ARGB.blue(color);
 
-            return FastColor.ARGB32.color(a, r, g, b);
+            return ARGB.color(a, r, g, b);
         }
 
         @Override
@@ -109,12 +108,12 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = Math.min(255, (int)(FastColor.ARGB32.red(color) * factor));
-            int g = Math.min(255, (int)(FastColor.ARGB32.green(color) * factor));
-            int b = Math.min(255, (int)(FastColor.ARGB32.blue(color) * factor));
+            int a = ARGB.alpha(color);
+            int r = Math.min(255, (int)(ARGB.red(color) * factor));
+            int g = Math.min(255, (int)(ARGB.green(color) * factor));
+            int b = Math.min(255, (int)(ARGB.blue(color) * factor));
 
-            return FastColor.ARGB32.color(a, r, g, b);
+            return ARGB.color(a, r, g, b);
         }
 
         @Override
@@ -138,12 +137,12 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = adjustChannelContrast(FastColor.ARGB32.red(color), factor);
-            int g = adjustChannelContrast(FastColor.ARGB32.green(color), factor);
-            int b = adjustChannelContrast(FastColor.ARGB32.blue(color), factor);
+            int a = ARGB.alpha(color);
+            int r = adjustChannelContrast(ARGB.red(color), factor);
+            int g = adjustChannelContrast(ARGB.green(color), factor);
+            int b = adjustChannelContrast(ARGB.blue(color), factor);
 
-            return FastColor.ARGB32.color(a, r, g, b);
+            return ARGB.color(a, r, g, b);
         }
 
         @Override
@@ -163,22 +162,22 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a1 = FastColor.ARGB32.alpha(color);
-            int r1 = FastColor.ARGB32.red(color);
-            int g1 = FastColor.ARGB32.green(color);
-            int b1 = FastColor.ARGB32.blue(color);
+            int a1 = ARGB.alpha(color);
+            int r1 = ARGB.red(color);
+            int g1 = ARGB.green(color);
+            int b1 = ARGB.blue(color);
 
-            int a2 = FastColor.ARGB32.alpha(tintColor);
-            int r2 = FastColor.ARGB32.red(tintColor);
-            int g2 = FastColor.ARGB32.green(tintColor);
-            int b2 = FastColor.ARGB32.blue(tintColor);
+            int a2 = ARGB.alpha(tintColor);
+            int r2 = ARGB.red(tintColor);
+            int g2 = ARGB.green(tintColor);
+            int b2 = ARGB.blue(tintColor);
 
             int a = (int)(a1 * (1 - strength) + a2 * strength);
             int r = (int)(r1 * (1 - strength) + r2 * strength);
             int g = (int)(g1 * (1 - strength) + g2 * strength);
             int b = (int)(b1 * (1 - strength) + b2 * strength);
 
-            return FastColor.ARGB32.color(a, r, g, b);
+            return ARGB.color(a, r, g, b);
         }
 
         @Override
@@ -198,12 +197,12 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int fa = FastColor.ARGB32.alpha(color);
-            int fr = Math.min(255, (int) (FastColor.ARGB32.red(color) * this.r));
-            int fg = Math.min(255, (int) (FastColor.ARGB32.green(color) * this.g));
-            int fb = Math.min(255, (int) (FastColor.ARGB32.blue(color) * this.b));
+            int fa = ARGB.alpha(color);
+            int fr = Math.min(255, (int) (ARGB.red(color) * this.r));
+            int fg = Math.min(255, (int) (ARGB.green(color) * this.g));
+            int fb = Math.min(255, (int) (ARGB.blue(color) * this.b));
 
-            return FastColor.ARGB32.color(fa, fr, fg, fb);
+            return ARGB.color(fa, fr, fg, fb);
         }
 
         @Override
@@ -221,10 +220,10 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = FastColor.ARGB32.red(color);
-            int g = FastColor.ARGB32.green(color);
-            int b = FastColor.ARGB32.blue(color);
+            int a = ARGB.alpha(color);
+            int r = ARGB.red(color);
+            int g = ARGB.green(color);
+            int b = ARGB.blue(color);
 
             float[] hsb = new float[3];
             java.awt.Color.RGBtoHSB(r, g, b, hsb);
@@ -232,7 +231,7 @@ public class Effects {
             if (hsb[0] < 0) hsb[0] += 1.0f;
 
             int rgb = java.awt.Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
-            return FastColor.ARGB32.color(a, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+            return ARGB.color(a, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
         }
 
         @Override
@@ -250,17 +249,17 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = FastColor.ARGB32.red(color);
-            int g = FastColor.ARGB32.green(color);
-            int b = FastColor.ARGB32.blue(color);
+            int a = ARGB.alpha(color);
+            int r = ARGB.red(color);
+            int g = ARGB.green(color);
+            int b = ARGB.blue(color);
 
             float[] hsb = new float[3];
             java.awt.Color.RGBtoHSB(r, g, b, hsb);
             hsb[1] = Math.max(0, Math.min(1, hsb[1] * factor));
 
             int rgb = java.awt.Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]);
-            return FastColor.ARGB32.color(a, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
+            return ARGB.color(a, (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF);
         }
 
         @Override
@@ -278,11 +277,11 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            return FastColor.ARGB32.color(
+            return ARGB.color(
                     this.opacity,
-                    FastColor.ARGB32.red(color),
-                    FastColor.ARGB32.green(color),
-                    FastColor.ARGB32.blue(color)
+                    ARGB.red(color),
+                    ARGB.green(color),
+                    ARGB.blue(color)
             );
         }
 
@@ -295,16 +294,16 @@ public class Effects {
     public static class Sepia extends SimplePixelEffect {
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = FastColor.ARGB32.red(color);
-            int g = FastColor.ARGB32.green(color);
-            int b = FastColor.ARGB32.blue(color);
+            int a = ARGB.alpha(color);
+            int r = ARGB.red(color);
+            int g = ARGB.green(color);
+            int b = ARGB.blue(color);
 
             int tr = (int)(0.393f * r + 0.769f * g + 0.189f * b);
             int tg = (int)(0.349f * r + 0.686f * g + 0.168f * b);
             int tb = (int)(0.272f * r + 0.534f * g + 0.131f * b);
 
-            return FastColor.ARGB32.color(a,
+            return ARGB.color(a,
                     Math.min(255, tr),
                     Math.min(255, tg),
                     Math.min(255, tb));
@@ -325,12 +324,12 @@ public class Effects {
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
-            int a = FastColor.ARGB32.alpha(color);
-            int r = (int)(255 * Math.pow(FastColor.ARGB32.red(color) / 255.0, 1.0 / this.gamma));
-            int g = (int)(255 * Math.pow(FastColor.ARGB32.green(color) / 255.0, 1.0 / this.gamma));
-            int b = (int)(255 * Math.pow(FastColor.ARGB32.blue(color) / 255.0, 1.0 / this.gamma));
+            int a = ARGB.alpha(color);
+            int r = (int)(255 * Math.pow(ARGB.red(color) / 255.0, 1.0 / this.gamma));
+            int g = (int)(255 * Math.pow(ARGB.green(color) / 255.0, 1.0 / this.gamma));
+            int b = (int)(255 * Math.pow(ARGB.blue(color) / 255.0, 1.0 / this.gamma));
 
-            return FastColor.ARGB32.color(a,
+            return ARGB.color(a,
                     Math.max(0, Math.min(255, r)),
                     Math.max(0, Math.min(255, g)),
                     Math.max(0, Math.min(255, b)));
@@ -350,17 +349,17 @@ public class Effects {
         }
 
         private static int getLuminance(int color) {
-            int r = FastColor.ARGB32.red(color);
-            int g = FastColor.ARGB32.green(color);
-            int b = FastColor.ARGB32.blue(color);
+            int r = ARGB.red(color);
+            int g = ARGB.green(color);
+            int b = ARGB.blue(color);
             return (int)(0.299f * r + 0.587f * g + 0.114f * b);
         }
 
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
             int lum = getLuminance(color);
-            int a = FastColor.ARGB32.alpha(color);
-            return lum > threshold ? FastColor.ARGB32.color(a, 255, 255, 255) : FastColor.ARGB32.color(a, 0, 0, 0);
+            int a = ARGB.alpha(color);
+            return lum > threshold ? ARGB.color(a, 255, 255, 255) : ARGB.color(a, 0, 0, 0);
         }
 
         @Override
@@ -380,7 +379,7 @@ public class Effects {
         protected int processPixel(int x, int y, int color, NativeImage image) {
             int px = (x / pixelSize) * pixelSize;
             int py = (y / pixelSize) * pixelSize;
-            return image.getPixelRGBA(
+            return image.getPixel(
                     Math.min(px, image.getWidth() - 1),
                     Math.min(py, image.getHeight() - 1)
             );
@@ -403,11 +402,11 @@ public class Effects {
         @Override
         protected int processPixel(int x, int y, int color, NativeImage image) {
             float noise = (random.nextFloat() - 0.5f) * intensity;
-            int a = FastColor.ARGB32.alpha(color);
-            int r = Math.max(0, Math.min(255, (int)(FastColor.ARGB32.red(color) + noise * 255)));
-            int g = Math.max(0, Math.min(255, (int)(FastColor.ARGB32.green(color) + noise * 255)));
-            int b = Math.max(0, Math.min(255, (int)(FastColor.ARGB32.blue(color) + noise * 255)));
-            return FastColor.ARGB32.color(a, r, g, b);
+            int a = ARGB.alpha(color);
+            int r = Math.max(0, Math.min(255, (int)(ARGB.red(color) + noise * 255)));
+            int g = Math.max(0, Math.min(255, (int)(ARGB.green(color) + noise * 255)));
+            int b = Math.max(0, Math.min(255, (int)(ARGB.blue(color) + noise * 255)));
+            return ARGB.color(a, r, g, b);
         }
 
         @Override
@@ -426,9 +425,9 @@ public class Effects {
         }
 
         private static int getLuminance(int color) {
-            int r = FastColor.ARGB32.red(color);
-            int g = FastColor.ARGB32.green(color);
-            int b = FastColor.ARGB32.blue(color);
+            int r = ARGB.red(color);
+            int g = ARGB.green(color);
+            int b = ARGB.blue(color);
             return (int)(0.299f * r + 0.587f * g + 0.114f * b);
         }
 
@@ -438,19 +437,19 @@ public class Effects {
 
             for (int y = 1; y < input.getHeight() - 1; y++) {
                 for (int x = 1; x < input.getWidth() - 1; x++) {
-                    int center = getLuminance(input.getPixelRGBA(x, y));
-                    int left = getLuminance(input.getPixelRGBA(x - 1, y));
-                    int right = getLuminance(input.getPixelRGBA(x + 1, y));
-                    int top = getLuminance(input.getPixelRGBA(x, y - 1));
-                    int bottom = getLuminance(input.getPixelRGBA(x, y + 1));
+                    int center = getLuminance(input.getPixel(x, y));
+                    int left = getLuminance(input.getPixel(x - 1, y));
+                    int right = getLuminance(input.getPixel(x + 1, y));
+                    int top = getLuminance(input.getPixel(x, y - 1));
+                    int bottom = getLuminance(input.getPixel(x, y + 1));
 
                     int edgeStrength = Math.abs(center - left) + Math.abs(center - right) +
                             Math.abs(center - top) + Math.abs(center - bottom);
 
                     if (edgeStrength > threshold) {
-                        result.setPixelRGBA(x, y, edgeColor);
+                        result.setPixel(x, y, edgeColor);
                     } else {
-                        result.setPixelRGBA(x, y, input.getPixelRGBA(x, y));
+                        result.setPixel(x, y, input.getPixel(x, y));
                     }
                 }
             }
@@ -485,16 +484,16 @@ public class Effects {
                             int px = Math.max(0, Math.min(input.getWidth() - 1, x + dx));
                             int py = Math.max(0, Math.min(input.getHeight() - 1, y + dy));
 
-                            int pixel = input.getPixelRGBA(px, py);
-                            aSum += FastColor.ARGB32.alpha(pixel);
-                            rSum += FastColor.ARGB32.red(pixel);
-                            gSum += FastColor.ARGB32.green(pixel);
-                            bSum += FastColor.ARGB32.blue(pixel);
+                            int pixel = input.getPixel(px, py);
+                            aSum += ARGB.alpha(pixel);
+                            rSum += ARGB.red(pixel);
+                            gSum += ARGB.green(pixel);
+                            bSum += ARGB.blue(pixel);
                             count++;
                         }
                     }
 
-                    result.setPixelRGBA(x, y, FastColor.ARGB32.color(
+                    result.setPixel(x, y, ARGB.color(
                             aSum / count, rSum / count, gSum / count, bSum / count));
                 }
             }
@@ -541,7 +540,7 @@ public class Effects {
                         }
                     }
 
-                    output.setPixelRGBA(x, y, input.getPixelRGBA(srcX, srcY));
+                    output.setPixel(x, y, input.getPixel(srcX, srcY));
                 }
             }
 
@@ -599,21 +598,21 @@ public class Effects {
 
                     for (int ky = -1; ky <= 1; ky++) {
                         for (int kx = -1; kx <= 1; kx++) {
-                            int pixel = input.getPixelRGBA(x + kx, y + ky);
+                            int pixel = input.getPixel(x + kx, y + ky);
                             float weight = kernel[ky + 1][kx + 1];
 
-                            rSum += FastColor.ARGB32.red(pixel) * weight;
-                            gSum += FastColor.ARGB32.green(pixel) * weight;
-                            bSum += FastColor.ARGB32.blue(pixel) * weight;
+                            rSum += ARGB.red(pixel) * weight;
+                            gSum += ARGB.green(pixel) * weight;
+                            bSum += ARGB.blue(pixel) * weight;
                         }
                     }
 
-                    int a = FastColor.ARGB32.alpha(input.getPixelRGBA(x, y));
+                    int a = ARGB.alpha(input.getPixel(x, y));
                     int r = Math.max(0, Math.min(255, (int)rSum));
                     int g = Math.max(0, Math.min(255, (int)gSum));
                     int b = Math.max(0, Math.min(255, (int)bSum));
 
-                    result.setPixelRGBA(x, y, FastColor.ARGB32.color(a, r, g, b));
+                    result.setPixel(x, y, ARGB.color(a, r, g, b));
                 }
             }
 

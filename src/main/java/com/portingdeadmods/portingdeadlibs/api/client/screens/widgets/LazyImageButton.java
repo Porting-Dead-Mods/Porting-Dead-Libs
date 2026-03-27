@@ -1,22 +1,22 @@
 package com.portingdeadmods.portingdeadlibs.api.client.screens.widgets;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Consumer;
 
 public class LazyImageButton extends AbstractButton {
-    private final ResourceLocation sprite;
+    private final Identifier sprite;
     private final int spriteWidth;
     private final int spriteHeight;
     private final Consumer<LazyImageButton> onPressFunction;
-    private Component hoverText = Component.empty();
 
-    public LazyImageButton(ResourceLocation sprite, int spriteWidth, int spriteHeight, int x, int y, int width, int height, Consumer<LazyImageButton> onPressFunction) {
+    public LazyImageButton(Identifier sprite, int spriteWidth, int spriteHeight, int x, int y, int width, int height, Consumer<LazyImageButton> onPressFunction) {
         super(x, y, width, height, Component.empty());
         this.sprite = sprite;
         this.spriteWidth = spriteWidth;
@@ -24,31 +24,19 @@ public class LazyImageButton extends AbstractButton {
         this.onPressFunction = onPressFunction;
     }
 
-    public Component getHoverText() {
-        return hoverText;
-    }
-
-    public void setHoverText(Component hoverText) {
-        this.hoverText = hoverText;
-    }
-
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+    protected void extractContents(GuiGraphicsExtractor guiGraphics, int i, int i1, float v) {
+        this.extractDefaultSprite(guiGraphics);
 
         int paddingX = (this.getWidth() - this.spriteWidth) / 2;
         int paddingY = (this.getHeight() - this.spriteHeight) / 2;
 
-        guiGraphics.blitSprite(this.sprite, getX() + paddingX, getY() + paddingY, this.spriteWidth, this.spriteHeight);
-
-        if (this.isHovered()) {
-            guiGraphics.renderTooltip(Minecraft.getInstance().font, this.hoverText, mouseX, mouseY);
-        }
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, this.sprite, getX() + paddingX, getY() + paddingY, this.spriteWidth, this.spriteHeight);
 
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers inputWithModifiers) {
         onPressFunction.accept(this);
     }
 

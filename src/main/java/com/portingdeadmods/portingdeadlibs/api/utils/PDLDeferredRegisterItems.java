@@ -2,7 +2,7 @@ package com.portingdeadmods.portingdeadlibs.api.utils;
 
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -28,13 +28,13 @@ public class PDLDeferredRegisterItems extends DeferredRegister.Items {
     }
 
     @Override
-    public <I extends Item> DeferredItem<I> register(String name, Function<ResourceLocation, ? extends I> func) {
+    public <I extends Item> DeferredItem<I> register(String name, Function<Identifier, ? extends I> func) {
         DeferredItem<I> item = super.register(name, func);
         this.creativeTabItems.add(item);
         return item;
     }
 
-    public <I extends Item> DeferredItem<I> registerNoCreative(String name, Function<ResourceLocation, ? extends I> func) {
+    public <I extends Item> DeferredItem<I> registerNoCreative(String name, Function<Identifier, ? extends I> func) {
         return super.register(name, func);
     }
 
@@ -51,7 +51,7 @@ public class PDLDeferredRegisterItems extends DeferredRegister.Items {
     }
 
     public DeferredItem<BlockItem> registerSimpleBlockItemNoCreative(Holder<Block> block, Item.Properties properties) {
-        String var10001 = block.unwrapKey().orElseThrow().location().getPath();
+        String var10001 = block.unwrapKey().orElseThrow().identifier().getPath();
         Objects.requireNonNull(block);
         return this.registerSimpleBlockItemNoCreative(var10001, block::value, properties);
     }

@@ -1,9 +1,11 @@
 package com.portingdeadmods.portingdeadlibs.api.client.screens.widgets;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 public abstract class AbstractDraggableWidget extends AbstractWidget {
     private boolean isHovered;
@@ -14,7 +16,7 @@ public abstract class AbstractDraggableWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int i, int i1, float v) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int i, int i1, float v) {
         if (this.updateIsHovered) {
             this.isHovered = this.isRectHovered(guiGraphics, i, i1, this.getWidth(), 12);
         }
@@ -25,24 +27,23 @@ public abstract class AbstractDraggableWidget extends AbstractWidget {
     }
 
     @Override
-    protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
-        super.onDrag(mouseX, mouseY, dragX, dragY);
+    protected void onDrag(MouseButtonEvent event, double dx, double dy) {
+        super.onDrag(event, dx, dy);
 
         this.updateIsHovered = false;
 
         if (this.isHovered) {
-            this.setPosition(getX() + (int) dragX, getY() + (int) dragY);
+            this.setPosition(getX() + (int) dx, getY() + (int) dy);
             this.onMoved();
         }
-
     }
 
     protected void onMoved() {
     }
 
     @Override
-    public void onRelease(double mouseX, double mouseY) {
-        super.onRelease(mouseX, mouseY);
+    public void onRelease(@NonNull MouseButtonEvent event) {
+        super.onRelease(event);
 
         this.updateIsHovered = true;
         this.isHovered = false;
@@ -52,7 +53,7 @@ public abstract class AbstractDraggableWidget extends AbstractWidget {
         return this.isHovered;
     }
 
-    protected boolean isRectHovered(GuiGraphics guiGraphics, int mouseX, int mouseY, int width, int height) {
+    protected boolean isRectHovered(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, int width, int height) {
         return guiGraphics.containsPointInScissor(mouseX, mouseY)
                 && mouseX >= this.getX()
                 && mouseY >= this.getY()

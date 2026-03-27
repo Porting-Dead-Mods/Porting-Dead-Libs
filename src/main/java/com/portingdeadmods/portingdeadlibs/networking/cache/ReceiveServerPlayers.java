@@ -16,9 +16,9 @@ import java.util.List;
 public record ReceiveServerPlayers(List<GameProfile> profiles) implements CustomPacketPayload {
     public static final StreamCodec<RegistryFriendlyByteBuf, GameProfile> GAME_PROFILE_STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC,
-            GameProfile::getId,
+            GameProfile::id,
             ByteBufCodecs.STRING_UTF8,
-            GameProfile::getName,
+            GameProfile::name,
             GameProfile::new
     );
 
@@ -37,7 +37,7 @@ public record ReceiveServerPlayers(List<GameProfile> profiles) implements Custom
     public void pong(IPayloadContext context) {
         context.enqueueWork(() -> {
             for (GameProfile profile : profiles) {
-                Minecraft.getInstance().getSkinManager().getOrLoad(profile).thenAccept(skin -> AllPlayersCache.add(profile.getId(), profile.getName(), skin));
+                Minecraft.getInstance().getSkinManager().get(profile).thenAccept(_skin -> _skin.ifPresent(skin -> AllPlayersCache.add(profile.id(), profile.name(), skin)));
             }
         }).exceptionally(err -> {
             PortingDeadLibs.LOGGER.error("Failed to handle ReceiveServerPlayers", err);

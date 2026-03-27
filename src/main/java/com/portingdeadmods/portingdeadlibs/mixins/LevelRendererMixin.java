@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(LevelRenderer.class)
 public interface LevelRendererMixin {
-	@Invoker
-	void callRenderHitOutline(
-			PoseStack matrixStackIn, VertexConsumer bufferIn, Entity entityIn, double xIn, double yIn, double zIn,
-			BlockPos blockPosIn, BlockState blockStateIn
-	);
+//	@Invoker
+//	void callRenderHitOutline(
+//			PoseStack matrixStackIn, VertexConsumer bufferIn, Entity entityIn, double xIn, double yIn, double zIn,
+//			BlockPos blockPosIn, BlockState blockStateIn
+//	);
 }

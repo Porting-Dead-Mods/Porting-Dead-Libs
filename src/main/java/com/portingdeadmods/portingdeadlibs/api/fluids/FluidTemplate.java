@@ -1,11 +1,11 @@
 package com.portingdeadmods.portingdeadlibs.api.fluids;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface FluidTemplate {
-    ResourceLocation getStillTexture();
+    Identifier getStillTexture();
 
-    ResourceLocation getFlowingTexture();
+    Identifier getFlowingTexture();
 
-    ResourceLocation getOverlayTexture();
+    Identifier getOverlayTexture();
 }

@@ -10,7 +10,7 @@ import java.util.UUID;
 public final class PlayerUtils {
     @Deprecated
     public static void openScreen(Player player, Screen screen) {
-        if (player.level().isClientSide) {
+        if (player.level().isClientSide()) {
             Minecraft.getInstance().setScreen(screen);
         }
     }

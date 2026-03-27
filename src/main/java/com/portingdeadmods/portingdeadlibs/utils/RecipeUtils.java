@@ -1,8 +1,6 @@
 package com.portingdeadmods.portingdeadlibs.utils;
 
 import com.mojang.serialization.MapCodec;
-import com.portingdeadmods.portingdeadlibs.api.recipes.IngredientWithCount;
-import com.portingdeadmods.portingdeadlibs.api.recipes.PDLRecipe;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
@@ -10,6 +8,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -27,7 +26,7 @@ public final class RecipeUtils {
      * This compares two lists of items/ingredients.
      * It does not care about the order of these.
      */
-    public static boolean compareItems(List<ItemStack> inputs, List<IngredientWithCount> ingredients) {
+    public static boolean compareItems(List<ItemStack> inputs, List<SizedIngredient> ingredients) {
         int elements = inputs.size();
         if (elements != ingredients.size()) {
             return false;
@@ -41,7 +40,7 @@ public final class RecipeUtils {
             for (int x = 0; x < elements; ++x) {
                 int matched = 0;
                 int offset = (x + 2) * elements;
-                IngredientWithCount test = ingredients.get(x);
+                SizedIngredient test = ingredients.get(x);
 
                 for (int y = 0; y < elements; ++y) {
                     if (!data.get(y) && test.test(inputs.get(y))) {
@@ -132,39 +131,16 @@ public final class RecipeUtils {
         }
     }
 
-    public static List<IngredientWithCount> ingredientsToIWC(Collection<Ingredient> ingredients) {
-        return ingredients.stream().map(IngredientWithCount::new).toList();
-    }
-
-    public static List<Ingredient> iWCToIngredients(Collection<IngredientWithCount> ingredientsWithCount) {
-        return ingredientsWithCount.stream().map(IngredientWithCount::ingredient).toList();
-    }
-
-    public static List<Ingredient> iWCToIngredientsSaveCount(Collection<IngredientWithCount> ingredientsWithCount) {
-        return ingredientsWithCount.stream().map(IngredientWithCount::toIngredientSaveCount).toList();
-    }
-
-    public static <T extends PDLRecipe<?>> RecipeType<T> newRecipeType(String name) {
-        return new RecipeType<>() {
-            @Override
-            public String toString() {
-                return name;
-            }
-        };
-    }
-
-    public static<T extends PDLRecipe<?>> RecipeSerializer<T> newRecipeSerializer(MapCodec<T> mapCodec, StreamCodec<RegistryFriendlyByteBuf, T> streamCodec) {
-        return new RecipeSerializer<>() {
-            @Override
-            public @NotNull MapCodec<T> codec() {
-                return mapCodec;
-            }
-
-            @Override
-            public @NotNull StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
-                return streamCodec;
-            }
-        };
-    }
+//    public static List<SizedIngredient> ingredientsToIWC(Collection<Ingredient> ingredients) {
+//        return ingredients.stream().map(SizedIngredient::new).toList();
+//    }
+//
+//    public static List<Ingredient> iWCToIngredients(Collection<SizedIngredient> ingredientsWithCount) {
+//        return ingredientsWithCount.stream().map(SizedIngredient::ingredient).toList();
+//    }
+//
+//    public static List<Ingredient> iWCToIngredientsSaveCount(Collection<SizedIngredient> ingredientsWithCount) {
+//        return ingredientsWithCount.stream().map(SizedIngredient::toIngredientSaveCount).toList();
+//    }
 
 }

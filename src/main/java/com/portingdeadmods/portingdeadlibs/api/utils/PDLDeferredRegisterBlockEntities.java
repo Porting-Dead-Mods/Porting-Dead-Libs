@@ -5,7 +5,7 @@ import com.portingdeadmods.portingdeadlibs.example.ExampleContainerBlockEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -28,10 +28,7 @@ public class PDLDeferredRegisterBlockEntities extends DeferredRegister<BlockEnti
 
     @SafeVarargs
     public final <BE extends BlockEntity> DeferredBlockEntity<BE> register(String name, BlockEntityType.BlockEntitySupplier<BE> supplier, Supplier<? extends Block>... validBlocks) {
-        DeferredHolder<BlockEntityType<?>, BlockEntityType<BE>> holder = this.register(name, () -> BlockEntityType.Builder.of(supplier, Arrays.stream(validBlocks)
-                        .map(Supplier::get)
-                        .toArray(Block[]::new))
-                .build(null));
+        DeferredHolder<BlockEntityType<?>, BlockEntityType<BE>> holder = this.register(name, () -> new BlockEntityType<>(supplier, Arrays.stream(validBlocks).map(Supplier::get).toArray(Block[]::new)));
         return new DeferredBlockEntity<>(holder.getKey());
     }
 }

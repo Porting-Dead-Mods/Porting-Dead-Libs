@@ -3,6 +3,8 @@ package com.portingdeadmods.portingdeadlibs.api.multiblocks;
 import com.portingdeadmods.portingdeadlibs.api.utils.HorizontalDirection;
 import net.minecraft.nbt.CompoundTag;
 
+import java.util.Optional;
+
 public record MultiblockData(boolean valid, HorizontalDirection direction, MultiblockLayer[] layers) {
     public static final MultiblockData EMPTY = new MultiblockData(false, HorizontalDirection.NORTH, new MultiblockLayer[0]);
 
@@ -21,14 +23,17 @@ public record MultiblockData(boolean valid, HorizontalDirection direction, Multi
     }
 
     public static MultiblockData deserializeNBT(CompoundTag nbt) {
-        int layersLength = nbt.getInt("layersLength");
-        CompoundTag listTag = nbt.getCompound("layersList");
+        int layersLength = nbt.getIntOr("layersLength", 0);
+        CompoundTag listTag = nbt.getCompoundOrEmpty("layersList");
         MultiblockLayer[] layers = new MultiblockLayer[layersLength];
         for (int i = 0; i < layers.length; i++) {
-            layers[i] = MultiblockLayer.load(listTag.getCompound(String.valueOf(i)));
+            Optional<CompoundTag> compound = listTag.getCompound(String.valueOf(i));
+            if (compound.isPresent()) {
+                layers[i] = MultiblockLayer.load(compound.get());
+            }
         }
-        HorizontalDirection direction = HorizontalDirection.values()[nbt.getInt("direction")];
-        boolean valid = nbt.getBoolean("valid");
+        HorizontalDirection direction = HorizontalDirection.values()[nbt.getIntOr("direction", 0)];
+        boolean valid = nbt.getBooleanOr("valid", false);
         return new MultiblockData(valid, direction, layers);
     }
 }

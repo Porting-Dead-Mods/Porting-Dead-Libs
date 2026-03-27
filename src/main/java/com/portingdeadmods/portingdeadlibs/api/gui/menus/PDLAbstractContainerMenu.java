@@ -1,7 +1,8 @@
 package com.portingdeadmods.portingdeadlibs.api.gui.menus;
 
 import com.google.common.collect.ImmutableList;
-import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
+import com.portingdeadmods.portingdeadlibs.api.blockentities.PDLBlockEntity;
+import com.portingdeadmods.portingdeadlibs.api.blockentities.ResourceHandlerBlockEntity;
 import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.FluidReferenceSlot;
 import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.ItemReferenceSlot;
 import net.minecraft.core.NonNullList;
@@ -13,11 +14,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public abstract class PDLAbstractContainerMenu<T extends ContainerBlockEntity> extends AbstractContainerMenu {
+public abstract class PDLAbstractContainerMenu<T extends BlockEntity & ResourceHandlerBlockEntity> extends AbstractContainerMenu {
     public final @NotNull T blockEntity;
     protected final @NotNull Inventory inv;
     private final ContainerLevelAccess access;

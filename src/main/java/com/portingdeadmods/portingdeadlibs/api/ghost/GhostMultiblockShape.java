@@ -1,9 +1,8 @@
 package com.portingdeadmods.portingdeadlibs.api.ghost;
 
-import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jetbrains.annotations.Nullable;
@@ -14,13 +13,13 @@ public class GhostMultiblockShape {
     private final Set<BlockPos> partPositions; // Relative to origin (0,0,0)
     private final BlockPos controllerPosition; // Relative to origin (0,0,0)
     private final AABB relativeBounds;
-    private final Map<BlockPos, List<ResourceLocation>> handlerExposure;
+    private final Map<BlockPos, List<Identifier>> handlerExposure;
     private final Map<BlockPos, GhostPartMenuFactory> partMenus;
     private final BlockPos placementOffset;
 
-    private static final ResourceLocation ITEM_HANDLER_KEY = Capabilities.ItemHandler.BLOCK.name();
-    private static final ResourceLocation FLUID_HANDLER_KEY = Capabilities.FluidHandler.BLOCK.name();
-    private static final ResourceLocation ENERGY_HANDLER_KEY = Capabilities.EnergyStorage.BLOCK.name();
+    private static final Identifier ITEM_HANDLER_KEY = Capabilities.Item.BLOCK.name();
+    private static final Identifier FLUID_HANDLER_KEY = Capabilities.Fluid.BLOCK.name();
+    private static final Identifier ENERGY_HANDLER_KEY = Capabilities.Energy.BLOCK.name();
 
     public enum Exposes {
         /** {@link ContainerBlockEntity#getItemHandler()} */
@@ -29,13 +28,13 @@ public class GhostMultiblockShape {
         /** {@link ContainerBlockEntity#getFluidHandler()} */
         FLUID_HANDLER,
 
-        /** {@link ContainerBlockEntity#getEnergyStorage()} */
+        /** {@link ContainerBlockEntity#getEnergyHandler()} */
         ENERGY_STORAGE
     }
 
     private GhostMultiblockShape(Set<BlockPos> partPositions,
                                  BlockPos controllerPosition,
-                                 Map<BlockPos, List<ResourceLocation>> handlerExposure,
+                                 Map<BlockPos, List<Identifier>> handlerExposure,
                                  Map<BlockPos, GhostPartMenuFactory> partMenus,
                                  BlockPos placementOffset) {
         this.partPositions = partPositions;
@@ -68,7 +67,7 @@ public class GhostMultiblockShape {
         return relativeBounds;
     }
 
-    public Map<BlockPos, List<ResourceLocation>> getHandlerExposure() {
+    public Map<BlockPos, List<Identifier>> getHandlerExposure() {
         return handlerExposure;
     }
 
@@ -86,8 +85,8 @@ public class GhostMultiblockShape {
             rotatedPartPositions.add(rotatePos(pos, direction));
         }
         BlockPos rotatedControllerPos = this.controllerPosition != null ? rotatePos(this.controllerPosition, direction) : null;
-        Map<BlockPos, List<ResourceLocation>> rotatedExposure = new HashMap<>();
-        for (Map.Entry<BlockPos, List<ResourceLocation>> entry : this.handlerExposure.entrySet()) {
+        Map<BlockPos, List<Identifier>> rotatedExposure = new HashMap<>();
+        for (Map.Entry<BlockPos, List<Identifier>> entry : this.handlerExposure.entrySet()) {
             rotatedExposure.put(rotatePos(entry.getKey(), direction), entry.getValue());
         }
         Map<BlockPos, GhostPartMenuFactory> rotatedMenus = new HashMap<>();
@@ -121,7 +120,7 @@ public class GhostMultiblockShape {
     public static class Builder {
         private final List<String[]> layers = new ArrayList<>();
         private char controllerChar = 'C';
-        private final Map<Character, List<ResourceLocation>> explicitHandlerMap = new HashMap<>();
+        private final Map<Character, List<Identifier>> explicitHandlerMap = new HashMap<>();
         private final Map<Character, GhostPartMenuFactory> menuFactories = new HashMap<>();
         private final Set<Character> noMenuChars = new HashSet<>();
         private BlockPos placementOffset = BlockPos.ZERO;
@@ -164,7 +163,7 @@ public class GhostMultiblockShape {
 	     * @param c Character used in the Layer
 	     * @param handlers Resource Location of the handler as defined in {@link ContainerBlockEntity#handlers}
 	     */
-        public Builder exposeHandlers(char c, ResourceLocation... handlers) {
+        public Builder exposeHandlers(char c, Identifier... handlers) {
             explicitHandlerMap.computeIfAbsent(c, k -> new ArrayList<>()).addAll(Arrays.asList(handlers));
             return this;
         }
@@ -200,7 +199,7 @@ public class GhostMultiblockShape {
         public GhostMultiblockShape build() {
             Set<BlockPos> partPositions = new HashSet<>();
             BlockPos controllerPos = null;
-            Map<BlockPos, List<ResourceLocation>> handlerExposure = new HashMap<>();
+            Map<BlockPos, List<Identifier>> handlerExposure = new HashMap<>();
             Map<BlockPos, GhostPartMenuFactory> partMenus = new HashMap<>();
 
 			// Height
@@ -225,12 +224,12 @@ public class GhostMultiblockShape {
                                 partPositions.add(currentPos);
                             }
 
-                            List<ResourceLocation> handlerKeys = new ArrayList<>();
+                            List<Identifier> handlerKeys = new ArrayList<>();
                             if (explicitHandlerMap.containsKey(c)) {
                                 handlerKeys.addAll(explicitHandlerMap.get(c));
                             }
                             if (!handlerKeys.isEmpty()) {
-                                List<ResourceLocation> deduped = List.copyOf(new LinkedHashSet<>(handlerKeys));
+                                List<Identifier> deduped = List.copyOf(new LinkedHashSet<>(handlerKeys));
                                 handlerExposure.put(currentPos, deduped);
                             }
 

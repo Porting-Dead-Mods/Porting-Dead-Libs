@@ -1,11 +1,11 @@
 package com.portingdeadmods.portingdeadlibs.example;
 
 import com.mojang.serialization.MapCodec;
-import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
-import com.portingdeadmods.portingdeadlibs.api.blocks.ContainerBlock;
+import com.portingdeadmods.portingdeadlibs.api.blockentities.PDLBlockEntity;
+import com.portingdeadmods.portingdeadlibs.api.blocks.PDLEntityBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -15,11 +15,13 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
 
-public class ExampleContainerBlock extends ContainerBlock {
+public class ExampleContainerBlock extends PDLEntityBlock {
     public ExampleContainerBlock(Properties properties) {
         super(properties);
     }
@@ -30,23 +32,27 @@ public class ExampleContainerBlock extends ContainerBlock {
     }
 
     @Override
-    public BlockEntityType<? extends ContainerBlockEntity> getBlockEntityType() {
+    protected RotationType getRotationType() {
+        return RotationType.NONE;
+    }
+
+    @Override
+    public BlockEntityType<? extends PDLBlockEntity> getBlockEntityType() {
         return ExampleRegistries.EXAMPLE_CONTAINER_BLOCK_ENTITY.get();
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ExampleContainerBlock::new);
-    }
-
-    @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.getBlockEntity(pos) instanceof ExampleContainerBlockEntity be) {
-            be.getItemHandler().insertItem(0, new ItemStack(Items.DIAMOND, 10), false);
-            be.getFluidHandler().fill(new FluidStack(Fluids.WATER, 10), IFluidHandler.FluidAction.EXECUTE);
-            return ItemInteractionResult.SUCCESS;
+            try (Transaction tx = Transaction.openRoot()) {
+                be.getHandler(Capabilities.Item.BLOCK).insert(ItemResource.of(Items.DIAMOND), 10, tx);
+                be.getHandler(Capabilities.Fluid.BLOCK).insert(FluidResource.of(Fluids.WATER), 10, tx);
+                tx.commit();
+            }
+
+            return InteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.FAIL;
+        return InteractionResult.FAIL;
     }
 
 }

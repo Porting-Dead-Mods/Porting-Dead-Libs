@@ -9,20 +9,25 @@ import com.portingdeadmods.portingdeadlibs.networking.RedstoneSignalTypeSyncPayl
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
 
 public class RedstonePanelWidget extends PanelWidget {
-    public static final ResourceLocation WIDGET_SPRITE = PortingDeadLibs.rl("widget/widget_redstone_control_right");
-    public static final ResourceLocation WIDGET_OPEN_SPRITE = PortingDeadLibs.rl("widget/redstone_widget_open");
+    public static final Identifier WIDGET_SPRITE = PortingDeadLibs.rl("widget/widget_redstone_control_right");
+    public static final Identifier WIDGET_OPEN_SPRITE = PortingDeadLibs.rl("widget/redstone_widget_open");
     public static final int WIDGET_WIDTH = 32, WIDGET_HEIGHT = 32;
     public static final int WIDGET_OPEN_WIDTH = 80, WIDGET_OPEN_HEIGHT = 80;
     public static final ItemStack REDSTONE_STACK = new ItemStack(Items.REDSTONE);
@@ -37,23 +42,23 @@ public class RedstonePanelWidget extends PanelWidget {
         super(x, y, WIDGET_OPEN_WIDTH - 2, WIDGET_OPEN_HEIGHT - 4, WIDGET_WIDTH - 8, WIDGET_HEIGHT - 8);
         int y1 = y + 24;
         this.buttonNoControl = new LazyImageButton(PortingDeadLibs.rl("redstone"), 16, 16, x + 7, y1, 18, 18, btn -> {
-            PacketDistributor.sendToServer(new RedstoneSignalTypeSyncPayload(this.redstoneBlockEntity.self().getBlockPos(), RedstoneBlockEntity.RedstoneSignalType.IGNORED));
+            ClientPacketDistributor.sendToServer(new RedstoneSignalTypeSyncPayload(this.redstoneBlockEntity.self().getBlockPos(), RedstoneBlockEntity.RedstoneSignalType.IGNORED));
             this.setFocusForButton(RedstoneBlockEntity.RedstoneSignalType.IGNORED);
         });
         this.buttonNoControl.visible = false;
-        this.buttonNoControl.setHoverText(Component.literal("Ignored"));
+        this.buttonNoControl.setTooltip(Tooltip.create(Component.literal("Ignored")));
         this.buttonLowSignal = new LazyImageButton(PortingDeadLibs.rl("redstone_torch_off"), 16, 16, x + 7 + 22, y1, 18, 18, btn -> {
-            PacketDistributor.sendToServer(new RedstoneSignalTypeSyncPayload(this.redstoneBlockEntity.self().getBlockPos(), RedstoneBlockEntity.RedstoneSignalType.LOW_SIGNAL));
+            ClientPacketDistributor.sendToServer(new RedstoneSignalTypeSyncPayload(this.redstoneBlockEntity.self().getBlockPos(), RedstoneBlockEntity.RedstoneSignalType.LOW_SIGNAL));
             this.setFocusForButton(RedstoneBlockEntity.RedstoneSignalType.LOW_SIGNAL);
         });
         this.buttonLowSignal.visible = false;
-        this.buttonLowSignal.setHoverText(Component.literal("Low"));
+        this.buttonLowSignal.setTooltip(Tooltip.create(Component.literal("Low")));
         this.buttonHighSignal = new LazyImageButton(PortingDeadLibs.rl("redstone_torch_on"), 16, 16, x + 7 + 44, y1, 18, 18, btn -> {
-            PacketDistributor.sendToServer(new RedstoneSignalTypeSyncPayload(this.redstoneBlockEntity.self().getBlockPos(), RedstoneBlockEntity.RedstoneSignalType.HIGH_SIGNAL));
+            ClientPacketDistributor.sendToServer(new RedstoneSignalTypeSyncPayload(this.redstoneBlockEntity.self().getBlockPos(), RedstoneBlockEntity.RedstoneSignalType.HIGH_SIGNAL));
             this.setFocusForButton(RedstoneBlockEntity.RedstoneSignalType.HIGH_SIGNAL);
         });
         this.buttonHighSignal.visible = false;
-        this.buttonHighSignal.setHoverText(Component.literal("High"));
+        this.buttonHighSignal.setTooltip(Tooltip.create(Component.literal("High")));
 
         this.buttons = new LazyImageButton[]{this.buttonNoControl, this.buttonLowSignal, this.buttonHighSignal};
 
@@ -67,7 +72,9 @@ public class RedstonePanelWidget extends PanelWidget {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
         boolean isHovered = mouseX >= this.getX()
                 && mouseY >= this.getY()
                 && mouseX < this.getX() + this.getClosedWidth()
@@ -89,7 +96,7 @@ public class RedstonePanelWidget extends PanelWidget {
                 this.setSize(WIDGET_WIDTH, WIDGET_HEIGHT);
             }
             this.context.onWidgetResizeFunc().accept(this);
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(event, doubleClick);
         }
         return false;
     }
@@ -98,7 +105,7 @@ public class RedstonePanelWidget extends PanelWidget {
     public void visitWidgets(Consumer<AbstractWidget> consumer) {
         super.visitWidgets(consumer);
 
-        for (LazyImageButton button : getButtons()) {
+        for (LazyImageButton button : this.getButtons()) {
             consumer.accept(button);
         }
     }
@@ -128,21 +135,21 @@ public class RedstonePanelWidget extends PanelWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int i, int i1, float v) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int i, int i1, float v) {
         if (open) {
             Font font = Minecraft.getInstance().font;
 
-            guiGraphics.blitSprite(WIDGET_OPEN_SPRITE, getX(), getY(), WIDGET_OPEN_WIDTH, WIDGET_OPEN_HEIGHT);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, WIDGET_OPEN_SPRITE, getX(), getY(), WIDGET_OPEN_WIDTH, WIDGET_OPEN_HEIGHT);
 
-            guiGraphics.renderFakeItem(REDSTONE_STACK, getX() + 3, getY() + 4);
-            guiGraphics.drawString(font, Component.literal("Redstone").withStyle(ChatFormatting.WHITE), getX() + 20, getY() + 9, -1);
+            guiGraphics.fakeItem(REDSTONE_STACK, getX() + 3, getY() + 4);
+            guiGraphics.text(font, Component.literal("Redstone").withStyle(ChatFormatting.WHITE), getX() + 20, getY() + 9, -1);
 
-            guiGraphics.drawString(font, Component.literal("Signal").withStyle(ChatFormatting.GRAY), getX() + 5, getY() + 50, -1);
+            guiGraphics.text(font, Component.literal("Signal").withStyle(ChatFormatting.GRAY), getX() + 5, getY() + 50, -1);
             RedstoneBlockEntity.RedstoneSignalType signalType = this.redstoneBlockEntity.getRedstoneSignalType();
             if (signalType == null) signalType = RedstoneBlockEntity.RedstoneSignalType.IGNORED;
-            guiGraphics.drawString(font, Component.translatable("redstone_signal_type." + PortingDeadLibs.MODID + "." + signalType.getSerializedName()).withStyle(ChatFormatting.WHITE), getX() + 5, getY() + 50 + font.lineHeight + 2, -1);
+            guiGraphics.text(font, Component.translatable("redstone_signal_type." + PortingDeadLibs.MODID + "." + signalType.getSerializedName()).withStyle(ChatFormatting.WHITE), getX() + 5, getY() + 50 + font.lineHeight + 2, -1);
         } else {
-            guiGraphics.blitSprite(WIDGET_SPRITE, getX(), getY(), WIDGET_WIDTH, WIDGET_HEIGHT);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, WIDGET_SPRITE, getX(), getY(), WIDGET_WIDTH, WIDGET_HEIGHT);
         }
     }
 

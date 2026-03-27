@@ -8,9 +8,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.common.util.NeoForgeExtraCodecs;
@@ -25,7 +27,7 @@ import java.util.function.Supplier;
 
 public final class CodecUtils {
     public static final Codec<RecipeHolder<?>> RECIPE_HOLDER_CODEC = RecordCodecBuilder.create(instance -> instance.group (
-            ResourceLocation.CODEC.fieldOf("id").forGetter(RecipeHolder::id),
+            ResourceKey.codec(Registries.RECIPE).fieldOf("id").forGetter(RecipeHolder::id),
             Recipe.CODEC.fieldOf("recipe").forGetter(RecipeHolder::value)
     ).apply(instance, RecipeHolder::new));
 
@@ -50,11 +52,11 @@ public final class CodecUtils {
     }
 
     public static <R> Codec<R> registryCodec(Registry<R> registry) {
-        return ResourceLocation.CODEC.xmap(registry::get, registry::getKey);
+        return Identifier.CODEC.xmap(registry::getValue, registry::getKey);
     }
 
     public static <R> StreamCodec<ByteBuf, R> registryStreamCodec(Registry<R> registry) {
-        return ResourceLocation.STREAM_CODEC.map(registry::get, registry::getKey);
+        return Identifier.STREAM_CODEC.map(registry::getValue, registry::getKey);
     }
 
     public static <T extends Enum<T>> Codec<T> enumCodec(Class<T> enumClazz) {

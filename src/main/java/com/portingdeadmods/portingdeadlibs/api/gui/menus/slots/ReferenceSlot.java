@@ -1,9 +1,9 @@
 package com.portingdeadmods.portingdeadlibs.api.gui.menus.slots;
 
 import com.portingdeadmods.portingdeadlibs.api.gui.menus.slots.AbstractSlot;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -111,7 +111,7 @@ public abstract class ReferenceSlot<T> extends AbstractSlot {
 	 * @param clickAction The click action
 	 * @return true if the click was handled
 	 */
-	public boolean handleSpecialClick(Player player, ClickType clickType, ClickAction clickAction) {
+	public boolean handleSpecialClick(Player player, MouseButtonEvent event) {
 		return false;
 	}
 }

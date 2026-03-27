@@ -2,6 +2,7 @@ package com.portingdeadmods.portingdeadlibs.api.ghost;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -39,15 +40,13 @@ public abstract class SimpleGhostMultiblockPart extends BaseEntityBlock implemen
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            onPartRemoved(state, level, pos, newState);
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        onPartRemoved(state, level, pos);
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
     @Override
-    public void onPartRemoved(BlockState state, Level level, BlockPos pos, BlockState newState) {
+    public void onPartRemoved(BlockState state, Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof SimpleGhostMultiblockPartBE partBE) {
             BlockPos controllerPos = partBE.getControllerPos();
             if (level.getBlockState(controllerPos).getBlock() instanceof GhostMultiblockController) {

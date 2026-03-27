@@ -4,11 +4,11 @@ import com.google.gson.JsonElement;
 import com.portingdeadmods.portingdeadlibs.PortingDeadLibs;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
+import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -36,11 +36,11 @@ public class DynamicPack implements PackResources {
     private final PackMetadataSection metadata;
     private final PackLocationInfo packLocationInfo;
 
-    public DynamicPack(ResourceLocation packId, PackType packType) {
+    public DynamicPack(Identifier packId, PackType packType) {
         this(packId.toString(), packType, PackSource.BUILT_IN);
     }
 
-    public DynamicPack(ResourceLocation packId, PackType packType, PackSource source) {
+    public DynamicPack(Identifier packId, PackType packType, PackSource source) {
         this(packId.toString(), packType, source);
     }
 
@@ -48,29 +48,29 @@ public class DynamicPack implements PackResources {
         this.packId = packId;
         this.packType = packType;
 
-        this.metadata = new PackMetadataSection(Component.empty(), SharedConstants.getCurrentVersion().getPackVersion(packType));
+        this.metadata = new PackMetadataSection(Component.empty(), SharedConstants.getCurrentVersion().packVersion(packType).minorRange());
         this.packLocationInfo = new PackLocationInfo(packId, Component.literal(packId), source, Optional.empty());
     }
 
-    private static String getPath(PackType packType, ResourceLocation resourceLocation) {
+    private static String getPath(PackType packType, Identifier resourceLocation) {
         return packType.getDirectory() + "/" + resourceLocation.getNamespace() + "/" + resourceLocation.getPath();
     }
 
-    public DynamicPack put(ResourceLocation location, IoSupplier<InputStream> stream) {
+    public DynamicPack put(Identifier location, IoSupplier<InputStream> stream) {
         files.put(getPath(packType, location), stream);
         return this;
     }
 
-    public DynamicPack put(ResourceLocation location, byte[] bytes) {
+    public DynamicPack put(Identifier location, byte[] bytes) {
         return put(location, () -> new ByteArrayInputStream(bytes));
     }
 
-    public DynamicPack put(ResourceLocation location, String string) {
+    public DynamicPack put(Identifier location, String string) {
         return put(location, string.getBytes(StandardCharsets.UTF_8));
     }
 
-    // Automatically suffixes the ResourceLocation with .json
-    public DynamicPack put(ResourceLocation location, JsonElement json) {
+    // Automatically suffixes the Identifier with .json
+    public DynamicPack put(Identifier location, JsonElement json) {
         return put(location.withSuffix(".json"), PortingDeadLibs.GSON.toJson(json));
     }
 
@@ -80,13 +80,13 @@ public class DynamicPack implements PackResources {
     }
 
     @Override
-    public @Nullable IoSupplier<InputStream> getResource(@NotNull PackType packType, @NotNull ResourceLocation resourceLocation) {
+    public @Nullable IoSupplier<InputStream> getResource(@NotNull PackType packType, @NotNull Identifier resourceLocation) {
         return files.getOrDefault(getPath(packType, resourceLocation), null);
     }
 
     @Override
     public void listResources(@NotNull PackType packType, @NotNull String namespace, @NotNull String path, @NotNull ResourceOutput resourceOutput) {
-        ResourceLocation resourceLocation = ResourceLocation.fromNamespaceAndPath(namespace, path);
+        Identifier resourceLocation = Identifier.fromNamespaceAndPath(namespace, path);
         String directoryAndNamespace = packType.getDirectory() + "/" + namespace + "/";
         String prefix = directoryAndNamespace + path + "/";
         files.forEach((filePath, streamSupplier) -> {
@@ -112,10 +112,9 @@ public class DynamicPack implements PackResources {
         return namespaces;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public @Nullable <T> T getMetadataSection(@NotNull MetadataSectionSerializer<T> deserializer) throws IOException {
-        return deserializer == PackMetadataSection.TYPE ? (T) metadata : null;
+    public @org.jspecify.annotations.Nullable <T> T getMetadataSection(MetadataSectionType<T> metadataSectionType) throws IOException {
+        return null;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.portingdeadmods.portingdeadlibs.api.ghost;
 
-import com.portingdeadmods.portingdeadlibs.api.blockentities.ContainerBlockEntity;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.portingdeadmods.portingdeadlibs.api.blockentities.SimpleContainerBlockEntity;
 import com.portingdeadmods.portingdeadlibs.api.gui.menus.PDLAbstractContainerMenu;
 import com.portingdeadmods.portingdeadlibs.utils.UniqueArray;
 import net.minecraft.core.BlockPos;
@@ -8,21 +10,23 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity implements MenuProvider {
+public abstract class GhostMultiblockControllerBE extends SimpleContainerBlockEntity implements MenuProvider {
     public final Set<BlockPos> partPositions = new UniqueArray<>();
-    public final Map<BlockPos, List<ResourceLocation>> exposedHandlers = new HashMap<>();
+    public final Map<BlockPos, List<Identifier>> exposedHandlers = new HashMap<>();
     public final Map<BlockPos, GhostPartMenuFactory> partMenus = new HashMap<>();
 
 	@Nullable
@@ -33,7 +37,7 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
     }
 
     public void setPartConfiguration(Set<BlockPos> partPositions,
-                                     Map<BlockPos, List<ResourceLocation>> handlerExposure,
+                                     Map<BlockPos, List<Identifier>> handlerExposure,
                                      Map<BlockPos, GhostPartMenuFactory> menuFactories) {
 
 		this.partPositions.clear(); // Should already be empty
@@ -53,12 +57,12 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
         return Collections.unmodifiableSet(partPositions);
     }
 
-    public Map<BlockPos, List<ResourceLocation>> getExposedHandlers() {
+    public Map<BlockPos, List<Identifier>> getExposedHandlers() {
         return Collections.unmodifiableMap(exposedHandlers);
     }
 
-    public boolean exposesHandler(ResourceLocation handlerKey, BlockPos partPos) {
-        List<ResourceLocation> handlers = exposedHandlers.get(partPos);
+    public boolean exposesHandler(Identifier handlerKey, BlockPos partPos) {
+        List<Identifier> handlers = exposedHandlers.get(partPos);
         if (handlers == null) {
             return true;
         }
@@ -73,72 +77,58 @@ public abstract class GhostMultiblockControllerBE extends ContainerBlockEntity i
         this.pendingMenuPart = partPos;
     }
 
+    record HandlerExposure(BlockPos pos, List<Identifier> handlers) {
+        public static final Codec<HandlerExposure> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                BlockPos.CODEC.fieldOf("pos").forGetter(HandlerExposure::pos),
+                Identifier.CODEC.listOf().fieldOf("handlers").forGetter(HandlerExposure::handlers)
+        ).apply(inst, HandlerExposure::new));
+    }
+
     @Override
-    protected void saveData(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveData(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+
         if (!partPositions.isEmpty()) {
-            tag.putLongArray("part_positions", partPositions.stream().mapToLong(BlockPos::asLong).toArray());
+            ValueOutput.TypedOutputList<Long> partPositions = output.list("part_positions", Codec.LONG);
+            this.partPositions.stream().mapToLong(BlockPos::asLong).forEach(partPositions::add);
         }
+
         if (!exposedHandlers.isEmpty()) {
-            ListTag exposure = new ListTag();
-            for (Map.Entry<BlockPos, List<ResourceLocation>> entry : exposedHandlers.entrySet()) {
-                CompoundTag entryTag = new CompoundTag();
-                entryTag.putLong("pos", entry.getKey().asLong());
-                ListTag handlers = new ListTag();
-                for (ResourceLocation id : entry.getValue()) {
-                    handlers.add(StringTag.valueOf(id.toString()));
-                }
-                entryTag.put("handlers", handlers);
-                exposure.add(entryTag);
+            ValueOutput.TypedOutputList<HandlerExposure> exposures = output.list("handler_exposures", HandlerExposure.CODEC);
+            for (Map.Entry<BlockPos, List<Identifier>> entry : exposedHandlers.entrySet()) {
+                HandlerExposure exposure = new HandlerExposure(entry.getKey(), entry.getValue());
+                exposures.add(exposure);
             }
-            tag.put("handler_exposure", exposure);
         }
+
         if (!partMenus.isEmpty()) {
-            ListTag noMenu = new ListTag();
+            ValueOutput.TypedOutputList<Long> noPartMenus = output.list("no_part_menus", Codec.LONG);
             for (Map.Entry<BlockPos, GhostPartMenuFactory> entry : partMenus.entrySet()) {
                 if (entry.getValue() == null) {
-                    noMenu.add(LongTag.valueOf(entry.getKey().asLong()));
+                    noPartMenus.add(entry.getKey().asLong());
                 }
-            }
-            if (!noMenu.isEmpty()) {
-                tag.put("no_part_menus", noMenu);
             }
         }
     }
 
     @Override
-    protected void loadData(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadData(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+
         this.partPositions.clear();
         this.exposedHandlers.clear();
         this.partMenus.clear();
 
-        if (tag.contains("part_positions")) {
-            long[] partPositionsArray = tag.getLongArray("part_positions");
-            for (long posLong : partPositionsArray) {
-                this.partPositions.add(BlockPos.of(posLong));
-            }
+        ValueInput.TypedInputList<Long> partPositions = input.listOrEmpty("part_positions", Codec.LONG);
+        partPositions.stream().map(BlockPos::of).forEach(this.partPositions::add);
+
+        ValueInput.TypedInputList<HandlerExposure> exposures = input.listOrEmpty("handler_exposure", HandlerExposure.CODEC);
+        for (HandlerExposure exposure : exposures) {
+            this.exposedHandlers.put(exposure.pos, exposure.handlers);
         }
-        if (tag.contains("handler_exposure", Tag.TAG_LIST)) {
-            ListTag exposure = tag.getList("handler_exposure", Tag.TAG_COMPOUND);
-            for (int i = 0; i < exposure.size(); i++) {
-                CompoundTag entry = exposure.getCompound(i);
-                BlockPos pos = BlockPos.of(entry.getLong("pos"));
-                ListTag handlers = entry.getList("handlers", Tag.TAG_STRING);
-                List<ResourceLocation> ids = new ArrayList<>(handlers.size());
-                for (int j = 0; j < handlers.size(); j++) {
-                    ids.add(ResourceLocation.parse(handlers.getString(j)));
-                }
-                this.exposedHandlers.put(pos, List.copyOf(ids));
-            }
-        }
-        if (tag.contains("no_part_menus", Tag.TAG_LIST)) {
-            ListTag noMenu = tag.getList("no_part_menus", Tag.TAG_LONG);
-            for (int i = 0; i < noMenu.size(); i++) {
-                BlockPos pos = BlockPos.of(((LongTag) noMenu.get(i)).getAsLong());
-                this.partMenus.put(pos, null);
-            }
-        }
+
+        ValueInput.TypedInputList<Long> noPartMenus = input.listOrEmpty("no_part_menus", Codec.LONG);
+        noPartMenus.stream().map(BlockPos::of).forEach(pos -> this.partMenus.put(pos, null));
     }
 
     @Override

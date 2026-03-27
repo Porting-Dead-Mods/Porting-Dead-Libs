@@ -8,7 +8,7 @@ import com.portingdeadmods.portingdeadlibs.api.data.PDLDataComponents;
 import com.portingdeadmods.portingdeadlibs.example.ExampleConfig;
 import com.portingdeadmods.portingdeadlibs.example.ExampleRegistries;
 import net.minecraft.SharedConstants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -40,13 +40,12 @@ public final class PortingDeadLibs {
 
     }
 
-    public static ResourceLocation rl(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier rl(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 
     private void registerRegistries(NewRegistryEvent event) {
         event.register(PDLRegistries.MULTIBLOCK);
         event.register(PDLRegistries.TRANSLATION);
-        event.register(PDLRegistries.SAVED_DATA);
     }
 }

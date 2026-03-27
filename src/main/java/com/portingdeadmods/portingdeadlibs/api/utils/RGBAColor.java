@@ -5,7 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.ColorRGBA;
 
 public record RGBAColor(int r, int g, int b, int a) {
     public RGBAColor(int r, int g, int b) {
@@ -32,6 +33,6 @@ public record RGBAColor(int r, int g, int b, int a) {
 	);
 
     public int toARGB() {
-        return FastColor.ARGB32.color(a, r, g, b);
+        return ARGB.color(a, r, g, b);
     }
 }
