@@ -7,10 +7,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 
 public final class Utils {
-    public static IntList intArrayToList(int[] array) {
-        return IntList.of(array);
-    }
-
     public static <T> Component registryTranslation(Registry<T> registry, T registryObject) {
         Identifier objLoc = registry.getKey(registryObject);
         return Component.translatable(registry.key().identifier().getPath() + "." + objLoc.getNamespace() + "." + objLoc.getPath());

@@ -22,13 +22,8 @@ public class GhostMultiblockShape {
     private static final Identifier ENERGY_HANDLER_KEY = Capabilities.Energy.BLOCK.name();
 
     public enum Exposes {
-        /** {@link ContainerBlockEntity#getItemHandler()} */
         ITEM_HANDLER,
-
-        /** {@link ContainerBlockEntity#getFluidHandler()} */
         FLUID_HANDLER,
-
-        /** {@link ContainerBlockEntity#getEnergyHandler()} */
         ENERGY_STORAGE
     }
 
@@ -158,11 +153,6 @@ public class GhostMultiblockShape {
             return this;
         }
 
-	    /**
-	     * It's recommended to only expose AT MOST 1 handler per type
-	     * @param c Character used in the Layer
-	     * @param handlers Resource Location of the handler as defined in {@link ContainerBlockEntity#handlers}
-	     */
         public Builder exposeHandlers(char c, Identifier... handlers) {
             explicitHandlerMap.computeIfAbsent(c, k -> new ArrayList<>()).addAll(Arrays.asList(handlers));
             return this;

@@ -10,11 +10,11 @@ public sealed interface Result<T, E> permits Result.Ok, Result.Err {
 		return null;
 	}
 
-	static <T, E extends Exception> Result<T, E> ok(T val) {
+	static <T, E extends Exception> Result.Ok<T, E> ok(T val) {
 		return new Ok<>(val);
 	}
 
-	static <T, E extends Exception> Result<T, E> err(E exception) {
+	static <T, E extends Exception> Result.Err<T, E> err(E exception) {
 		return new Err<>(exception);
 	}
 
