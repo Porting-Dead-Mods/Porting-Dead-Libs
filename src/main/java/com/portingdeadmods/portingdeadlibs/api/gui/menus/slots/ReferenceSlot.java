@@ -107,8 +107,6 @@ public abstract class ReferenceSlot<T> extends AbstractSlot {
 	/**
 	 * Override this to handle clicking with a fluid container
 	 * @param player The player clicking
-	 * @param clickType The type of click
-	 * @param clickAction The click action
 	 * @return true if the click was handled
 	 */
 	public boolean handleSpecialClick(Player player, MouseButtonEvent event) {
