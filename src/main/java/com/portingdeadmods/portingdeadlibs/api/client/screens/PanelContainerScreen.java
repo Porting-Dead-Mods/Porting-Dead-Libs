@@ -18,6 +18,11 @@ public abstract class PanelContainerScreen<T extends PDLAbstractContainerMenu<?>
         this.panelWidgets = new ArrayList<>();
     }
 
+    public PanelContainerScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
+        super(menu, playerInventory, title, imageWidth, imageHeight);
+        this.panelWidgets = new ArrayList<>();
+    }
+
     @Override
     protected void init() {
         super.init();

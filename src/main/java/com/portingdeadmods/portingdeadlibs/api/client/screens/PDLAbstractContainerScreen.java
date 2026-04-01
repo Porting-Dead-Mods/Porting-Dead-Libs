@@ -14,6 +14,10 @@ public abstract class PDLAbstractContainerScreen<T extends PDLAbstractContainerM
         super(menu, playerInventory, title);
     }
 
+    public PDLAbstractContainerScreen(T menu, Inventory playerInventory, Component title, int imageWidth, int imageHeight) {
+        super(menu, playerInventory, title, imageWidth, imageHeight);
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
