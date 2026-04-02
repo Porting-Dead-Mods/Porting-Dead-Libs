@@ -1,4 +1,4 @@
-package com.portingdeadmods.portingdeadlibs.api.utils;
+package com.portingdeadmods.portingdeadlibs.api.misc;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.ColorRGBA;
 
 public record RGBAColor(int r, int g, int b, int a) {
     public RGBAColor(int r, int g, int b) {

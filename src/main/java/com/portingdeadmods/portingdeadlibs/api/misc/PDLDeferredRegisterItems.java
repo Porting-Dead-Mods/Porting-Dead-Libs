@@ -1,7 +1,6 @@
-package com.portingdeadmods.portingdeadlibs.api.utils;
+package com.portingdeadmods.portingdeadlibs.api.misc;
 
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;

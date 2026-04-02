@@ -1,4 +1,4 @@
-package com.portingdeadmods.portingdeadlibs.api.utils;
+package com.portingdeadmods.portingdeadlibs.api.misc;
 
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;

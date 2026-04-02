@@ -1,7 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.api.multiblocks;
 
 import com.portingdeadmods.portingdeadlibs.api.blockentities.multiblocks.MultiblockEntity;
-import com.portingdeadmods.portingdeadlibs.api.utils.HorizontalDirection;
+import com.portingdeadmods.portingdeadlibs.api.misc.HorizontalDirection;
 import com.portingdeadmods.portingdeadlibs.utils.MultiblockHelper;
 import com.portingdeadmods.portingdeadlibs.utils.ranges.IntRange;
 import it.unimi.dsi.fastutil.ints.IntIntPair;

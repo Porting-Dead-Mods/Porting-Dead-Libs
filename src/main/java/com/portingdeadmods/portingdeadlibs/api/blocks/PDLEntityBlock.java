@@ -5,9 +5,11 @@ import com.portingdeadmods.portingdeadlibs.api.blockentities.PDLBlockListenerBlo
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public abstract class PDLEntityBlock extends Block implements EntityBlock {
@@ -131,8 +134,25 @@ public abstract class PDLEntityBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return super.useWithoutItem(state, level, pos, player, hitResult);
+    protected @NonNull InteractionResult useItemOn(ItemStack itemStack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        InteractionResult interactionResult = super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+
+        if (level.getBlockEntity(pos) instanceof PDLBlockListenerBlockEntity blockEntityListener) {
+            return blockEntityListener.use(player, itemStack, hand, hitResult);
+        }
+
+        return interactionResult;
+    }
+
+    @Override
+    protected @NonNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        InteractionResult interactionResult = super.useWithoutItem(state, level, pos, player, hitResult);
+
+        if (level.getBlockEntity(pos) instanceof PDLBlockListenerBlockEntity blockEntityListener) {
+            return blockEntityListener.use(player, ItemStack.EMPTY, null, hitResult);
+        }
+
+        return interactionResult;
     }
 
     public enum RotationType {

@@ -1,7 +1,7 @@
 package com.portingdeadmods.portingdeadlibs.utils.capabilities;
 
 import com.google.common.collect.ImmutableMap;
-import com.portingdeadmods.portingdeadlibs.api.utils.IOAction;
+import com.portingdeadmods.portingdeadlibs.api.misc.IOAction;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.core.Direction;
 

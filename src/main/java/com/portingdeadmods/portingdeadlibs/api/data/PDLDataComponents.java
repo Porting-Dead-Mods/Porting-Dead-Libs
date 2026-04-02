@@ -17,9 +17,15 @@ public final class PDLDataComponents {
     public static final DeferredRegister.DataComponents DATA_COMPONENT_TYPES = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, PortingDeadLibs.MODID);
 
     public static final Supplier<DataComponentType<SimpleFluidContent>> FLUID = registerDataComponentType("fluid",
-            () -> builder -> builder.persistent(SimpleFluidContent.CODEC).networkSynchronized(SimpleFluidContent.STREAM_CODEC));
+            () -> builder -> builder
+                    .persistent(SimpleFluidContent.CODEC)
+                    .networkSynchronized(SimpleFluidContent.STREAM_CODEC)
+                    .ignoreSwapAnimation());
     public static final Supplier<DataComponentType<Integer>> ENERGY = registerDataComponentType("energy",
-            () -> builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT));
+            () -> builder -> builder
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.INT)
+                    .ignoreSwapAnimation());
     // FOR ITEMS USE DataComponents.CONTAINER
 
     public static <T> Supplier<DataComponentType<T>> registerDataComponentType(

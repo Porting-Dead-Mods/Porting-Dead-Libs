@@ -1,6 +1,6 @@
 package com.portingdeadmods.portingdeadlibs.api.multiblocks;
 
-import com.portingdeadmods.portingdeadlibs.api.utils.HorizontalDirection;
+import com.portingdeadmods.portingdeadlibs.api.misc.HorizontalDirection;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.Optional;
